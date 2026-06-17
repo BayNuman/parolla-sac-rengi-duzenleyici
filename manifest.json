@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Avatar Renk Değiştirici 🎨",
+  "version": "2.0",
+  "description": "Parolla'da avatar saç rengini dilediğiniz renk ile değiştirir.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

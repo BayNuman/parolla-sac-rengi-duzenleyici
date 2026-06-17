@@ -1,0 +1,49 @@
+# 🎨 Parolla.app Saç Rengi Düzenleyici (Hair Color Editor)
+
+Parolla.app üzerindeki avatarınızın saç rengini dilediğiniz herhangi bir özel renk (HEX kodu) ile değiştirmenizi sağlayan mini bir Chrome Eklentisidir.
+
+---
+
+## 🚀 Özellikler (Features)
+
+- 🎨 **Sınırsız Renk Seçeneği:** Sunulan varsayılan renk paletlerinin dışına çıkarak dilediğiniz rengi HEX/RGB renk seçici ile uygulayabilirsiniz.
+- ⚡ **Kolay ve Hızlı:** Tek tıkla aktif sekmedeki Parolla profilinize saç renginizi yansıtır.
+- 🔒 **Güvenli:** Sadece aktif sekmedeki Parolla API'si ve çerezlerinizi kullanarak doğrudan resmi sunucu üzerinden güncelleme yapar, şifre veya hassas bilgi talep etmez.
+
+---
+
+## 🛠️ Kurulum Adımları (Installation Guide)
+
+Eklentiyi tarayıcınıza yüklemek için aşağıdaki basit adımları takip edebilirsiniz:
+
+1. **Projeyi İndirin:**
+   - Sayfanın üstündeki **Code** butonuna tıklayıp **Download ZIP** seçeneği ile bilgisayarınıza indirin ve klasöre çıkartın (veya `git clone` komutunu kullanın).
+
+2. **Chrome Uzantılar Sayfasını Açın:**
+   - Tarayıcınızın adres çubuğuna `chrome://extensions/` yazın ve Enter'a basın.
+
+3. **Geliştirici Modunu Aktif Edin:**
+   - Uzantılar sayfasının sağ üst köşesinde yer alan **Geliştirici modu (Developer mode)** anahtarını açık konuma getirin.
+
+4. **Eklentiyi Yükleyin:**
+   - Sol üstte çıkan **Paketlenmemiş uzantı yükle (Load unpacked)** butonuna tıklayın.
+   - Bu projenin (`manifest.json` dosyasının bulunduğu) klasörünü seçin.
+
+5. **Hazır!**
+   - Tarayıcınızın uzantılar (yapboz parçası 🧩) menüsünden eklentiyi sabitleyerek kolayca erişebilirsiniz.
+
+---
+
+## 📖 Kullanım Şekli (How to Use)
+
+1. Tarayıcınızdan [Parolla.app](https://parolla.app) adresine gidin ve hesabınıza giriş yapın.
+2. Sağ üstten avatar/profil düzenleme alanına geçin.
+3. Uzantı simgemize (🎨) tıklayarak saç rengi seçiciyi açın.
+4. İstediğiniz rengi seçin ve **Rengi Uygula 🚀** butonuna basın.
+5. İşlem başarılı uyarısından sonra profil sayfanız otomatik yenilenecek ve yeni saç renginiz aktif olacaktır!
+
+---
+
+## 📜 Lisans (License)
+
+Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır. Dilediğiniz gibi geliştirebilir, paylaşabilir ve kullanabilirsiniz.
