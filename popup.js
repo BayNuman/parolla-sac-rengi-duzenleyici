@@ -6,6 +6,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const errorMessage = document.getElementById("errorMessage");
   const applyBtn = document.getElementById("applyBtn");
   const randomBtn = document.getElementById("randomBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  // Hair Gradient UI Toggles
+  const hairGradientType = document.getElementById("hairGradientType");
+  const hairColor2Group = document.getElementById("hairColor2Group");
+  const hairGradientDirGroup = document.getElementById("hairGradientDirGroup");
+  const hairColor1Label = document.getElementById("hairColor1Label");
 
   let userToken = "";
   let userProfile = null;
@@ -33,6 +40,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       debouncedLoadPreview();
     });
   });
+
+  // Hair Gradient Type Toggle logic
+  hairGradientType.addEventListener("change", () => {
+    toggleHairGradientFields();
+    debouncedLoadPreview();
+  });
+
+  function toggleHairGradientFields() {
+    if (hairGradientType.value === "gradient") {
+      hairColor2Group.classList.remove("hidden");
+      hairGradientDirGroup.classList.remove("hidden");
+      hairColor1Label.textContent = "Saç Rengi 1 (Üst)";
+    } else {
+      hairColor2Group.classList.add("hidden");
+      hairGradientDirGroup.classList.add("hidden");
+      hairColor1Label.textContent = "Saç Rengi";
+    }
+  }
 
   // Form elements event listeners
   const formElements = document.querySelectorAll("select, input[type='text'], input[type='checkbox']");
@@ -163,6 +188,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     hairPicker.value = hairColor.startsWith("#") ? hairColor : `#${hairColor}`;
     document.getElementById("hairColorHex").textContent = hairPicker.value;
 
+    // Hair Gradient configs (custom extension fields inside config)
+    hairGradientType.value = getConfigVal(config, "hairGradientType", "solid");
+    
+    const hairColor2 = getConfigVal(config, "hairColor2", "ab2a18");
+    const hair2Picker = document.getElementById("hairColor2");
+    hair2Picker.value = hairColor2.startsWith("#") ? hairColor2 : `#${hairColor2}`;
+    document.getElementById("hairColor2Hex").textContent = hair2Picker.value;
+
+    document.getElementById("hairGradientDir").value = getConfigVal(config, "hairGradientDir", "vertical");
+
+    toggleHairGradientFields();
+
     // 3. Yüz Sekme
     document.getElementById("eyes").value = getConfigVal(config, "eyes", "variant01");
     document.getElementById("eyebrows").value = getConfigVal(config, "eyebrows", "variant01");
@@ -219,6 +256,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     config.hairColor = [cleanHex(document.getElementById("hairColor").value)];
 
+    // Hair Gradient Custom Fields
+    config.hairGradientType = hairGradientType.value;
+    config.hairColor2 = [cleanHex(document.getElementById("hairColor2").value)];
+    config.hairGradientDir = document.getElementById("hairGradientDir").value;
+
     // 3. Yüz
     config.eyes = [document.getElementById("eyes").value];
     config.eyebrows = [document.getElementById("eyebrows").value];
@@ -259,6 +301,40 @@ document.addEventListener("DOMContentLoaded", async () => {
   function debouncedLoadPreview() {
     clearTimeout(previewTimeout);
     previewTimeout = setTimeout(loadPreview, 300);
+  }
+
+  // Client-side SVG editing to apply the linear gradient to hair elements
+  function applyHairGradient(svgText, color1, color2, direction, originalHairColor) {
+    let x1 = "0%", y1 = "0%", x2 = "0%", y2 = "100%"; // vertical (default)
+    if (direction === "horizontal") {
+      x2 = "100%"; y2 = "0%";
+    } else if (direction === "diagonal") {
+      x2 = "100%"; y2 = "100%";
+    }
+
+    const gradientHtml = `<linearGradient id="hairGradient" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"><stop offset="0%" stop-color="${color1}"/><stop offset="100%" stop-color="${color2}"/></linearGradient>`;
+
+    let updatedSvg = svgText;
+    if (updatedSvg.includes("<defs>")) {
+      updatedSvg = updatedSvg.replace("<defs>", `<defs>${gradientHtml}`);
+    } else {
+      updatedSvg = updatedSvg.replace(">", `><defs>${gradientHtml}</defs>`);
+    }
+
+    // Replaces fill attributes matching the hair color
+    const regex1 = new RegExp(`fill="#${originalHairColor}"`, "gi");
+    const regex2 = new RegExp(`fill: #${originalHairColor}`, "gi");
+    const regex3 = new RegExp(`fill='\s*#${originalHairColor}\s*'`, "gi");
+    const regex4 = new RegExp(`fill="%23${originalHairColor}"`, "gi");
+    const regex5 = new RegExp(`fill='%23${originalHairColor}'`, "gi");
+
+    updatedSvg = updatedSvg.replace(regex1, 'fill="url(#hairGradient)"');
+    updatedSvg = updatedSvg.replace(regex2, 'fill: url(#hairGradient)');
+    updatedSvg = updatedSvg.replace(regex3, "fill='url(#hairGradient)'");
+    updatedSvg = updatedSvg.replace(regex4, 'fill="url(#hairGradient)"');
+    updatedSvg = updatedSvg.replace(regex5, "fill='url(#hairGradient)'");
+
+    return updatedSvg;
   }
 
   async function loadPreview() {
@@ -322,7 +398,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       const res = await fetch(dicebearUrl);
       if (!res.ok) throw new Error("Önizleme yüklenemedi");
       
-      const svgText = await res.text();
+      let svgText = await res.text();
+
+      // Apply gradient if enabled
+      if (config.hairGradientType === "gradient" && config.hairProbability !== 0) {
+        const c1 = document.getElementById("hairColor").value;
+        const c2 = document.getElementById("hairColor2").value;
+        const dir = config.hairGradientDir;
+        svgText = applyHairGradient(svgText, c1, c2, dir, config.hairColor[0]);
+      }
+
       currentSvgText = svgText;
       avatarPreview.innerHTML = svgText;
       showError(null); // Clear errors on success
@@ -332,6 +417,46 @@ document.addEventListener("DOMContentLoaded", async () => {
       previewLoader.style.display = "none";
     }
   }
+
+  // Reset all options to default settings
+  resetBtn.addEventListener("click", () => {
+    // 1. Genel
+    document.getElementById("bgType").value = "solid";
+    document.getElementById("bgColor").value = "#65c9ff";
+    document.getElementById("bgColorHex").textContent = "#65c9ff";
+    document.getElementById("skinColor").value = "#f2d3b1";
+    document.getElementById("skinColorHex").textContent = "#f2d3b1";
+    document.getElementById("avatarStyle").value = "default";
+    document.getElementById("flip").checked = false;
+    document.getElementById("scale").value = "100";
+    document.getElementById("seed").value = "";
+
+    // 2. Saç
+    document.getElementById("hair").value = "short01";
+    document.getElementById("hairColor").value = "#cb6820";
+    document.getElementById("hairColorHex").textContent = "#cb6820";
+    hairGradientType.value = "solid";
+    document.getElementById("hairColor2").value = "#ab2a18";
+    document.getElementById("hairColor2Hex").textContent = "#ab2a18";
+    document.getElementById("hairGradientDir").value = "vertical";
+    toggleHairGradientFields();
+
+    // 3. Yüz
+    document.getElementById("eyes").value = "variant01";
+    document.getElementById("eyebrows").value = "variant01";
+    document.getElementById("mouth").value = "variant01";
+
+    // 4. Detaylar
+    document.getElementById("glasses").value = "none";
+    document.getElementById("earrings").value = "none";
+    document.getElementById("feat_mustache").checked = false;
+    document.getElementById("feat_blush").checked = false;
+    document.getElementById("feat_birthmark").checked = false;
+    document.getElementById("feat_freckles").checked = false;
+
+    showError(null);
+    loadPreview();
+  });
 
   // Randomize values
   randomBtn.addEventListener("click", () => {
@@ -358,11 +483,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     randomOption("glasses");
     randomOption("earrings");
     randomOption("avatarStyle");
+    randomOption("hairGradientType");
+    randomOption("hairGradientDir");
+
+    toggleHairGradientFields();
 
     // Randomize colors
     randomColor("bgColor");
     randomColor("skinColor");
     randomColor("hairColor");
+    randomColor("hairColor2");
 
     // Randomize checkboxes
     document.getElementById("feat_mustache").checked = Math.random() > 0.7;
@@ -446,7 +576,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       showError("Kaydetme sırasında hata: " + err.message);
     } finally {
       applyBtn.disabled = false;
-      applyBtn.textContent = "Değişiklikleri Uygula 🚀";
+      applyBtn.textContent = "Uygula 🚀";
     }
   });
 

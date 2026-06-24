@@ -7,13 +7,14 @@ Parolla.app üzerindeki DiceBear avatarınızı, oyun içi sınırlandırmalara 
 ## 🚀 Özellikler (Features)
 
 - 🎨 **Canlı Önizleme:** Yaptığınız tüm değişiklikleri (saç, göz, küpe, detay vb.) anlık olarak eklenti arayüzünde canlı olarak görün.
-- 🌈 **Sınırsız Renk Paleti:** Arka plan, cilt ve saç renklerini varsayılan kısıtlı seçeneklerin dışına çıkarak HEX renk seçicileri ile özgürce belirleyin.
+- 🌈 **Sınırsız Renk Paleti & Gradyan:** Arka plan, cilt ve saç renklerini özgürce belirleyin. Saç rengi için **Düz Renk** veya iki renkli **Gradyan (Dikey, Yatay, Çapraz)** boyama seçeneklerini kullanın!
 - 🧑‍🎤 **Gelişmiş DiceBear Özelleştirmesi:**
   - **Saç Tasarımları:** 45'in üzerinde farklı Kısa ve Uzun saç stili ile özel saç renkleri.
   - **Yüz Detayları:** 26 farklı göz, 15 kaş ve 30 ağız kombinasyonu.
   - **Aksesuarlar & Detaylar:** 5 gözlük, 6 küpe çeşidi ile karakter özellikleri (Bıyık, Allık, Ben/Leke, Çil).
   - **Genel Ayarlar:** Şeffaf/yuvarlak kenarlık tipleri, yönü çevirme (flip), ölçekleme (scale) ve rastgele tohum (seed) belirleme.
 - 🎲 **Zarla (Randomizer):** Tek bir tıkla tamamen rastgele ve eğlenceli avatarlar üretin.
+- ↩️ **Sıfırla (Reset):** Tasarımı anında orijinal varsayılan ayarlarına geri döndürün.
 - ⚡ **Kolay Kayıt:** Tasarladığınız avatarı doğrudan Parolla.app API'sine göndererek tek tıkla resmi profilinize uygulayın.
 - 🔒 **Güvenli:** Eklenti şifre veya hassas bilgi talep etmez; sadece aktif Parolla.app oturum çerezinizi kullanarak doğrudan profilinizi günceller.
 

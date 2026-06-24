@@ -271,11 +271,11 @@
     /* Butonlar */
     .actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
     button.btn {
-      padding: 10px 16px;
-      font-size: 13px;
+      padding: 10px 12px;
+      font-size: 12px;
       font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
@@ -294,7 +294,7 @@
     .btn-primary {
       background-color: var(--accent-color);
       color: #fff;
-      flex: 2;
+      flex: 1.5;
       box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
     .btn-primary:hover {
@@ -312,6 +312,11 @@
       text-align: center;
       margin-bottom: 12px;
       display: none;
+    }
+
+    /* Gizli Elementler */
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
@@ -460,11 +465,39 @@
     </div>
     <div class="control-group">
       <div class="control-row">
-        <label for="hairColor">Saç Rengi</label>
+        <label for="hairGradientType">Saç Boyama Tipi</label>
+        <select id="hairGradientType">
+          <option value="solid">Düz Renk</option>
+          <option value="gradient">Gradyan</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group" id="hairColor1Group">
+      <div class="control-row">
+        <label for="hairColor" id="hairColor1Label">Saç Rengi</label>
         <div class="color-input-wrapper">
           <span class="color-hex" id="hairColorHex">#cb6820</span>
           <input type="color" id="hairColor" value="#cb6820">
         </div>
+      </div>
+    </div>
+    <div class="control-group hidden" id="hairColor2Group">
+      <div class="control-row">
+        <label for="hairColor2">Saç Rengi 2 (Alt)</label>
+        <div class="color-input-wrapper">
+          <span class="color-hex" id="hairColor2Hex">#ab2a18</span>
+          <input type="color" id="hairColor2" value="#ab2a18">
+        </div>
+      </div>
+    </div>
+    <div class="control-group hidden" id="hairGradientDirGroup">
+      <div class="control-row">
+        <label for="hairGradientDir">Gradyan Yönü</label>
+        <select id="hairGradientDir">
+          <option value="vertical">Dikey (Yukarıdan Aşağıya)</option>
+          <option value="horizontal">Yatay (Soldan Sağa)</option>
+          <option value="diagonal">Çapraz</option>
+        </select>
       </div>
     </div>
   </div>
@@ -618,8 +651,9 @@
   </div>
 
   <div class="actions">
+    <button id="resetBtn" class="btn btn-secondary">Sıfırla ↩️</button>
     <button id="randomBtn" class="btn btn-secondary">Zarla 🎲</button>
-    <button id="applyBtn" class="btn btn-primary">Değişiklikleri Uygula 🚀</button>
+    <button id="applyBtn" class="btn btn-primary">Uygula 🚀</button>
   </div>
 
   <script src="popup.js"></script>
