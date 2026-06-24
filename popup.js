@@ -14,6 +14,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   const hairGradientDirGroup = document.getElementById("hairGradientDirGroup");
   const hairColor1Label = document.getElementById("hairColor1Label");
 
+  // Presets Containers
+  const bgPresetsContainer = document.getElementById("bgPresets");
+  const hairPresetsContainer = document.getElementById("hairPresets");
+  const skinPresets = document.querySelectorAll("#skinPresets .color-swatch");
+
+  // Add Preset Buttons
+  const addBgPresetBtn = document.getElementById("addBgPreset");
+  const addHairPresetBtn = document.getElementById("addHairPreset");
+
   let userToken = "";
   let userProfile = null;
   let currentSvgText = "";
@@ -36,6 +45,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       const hexSpan = document.getElementById(`${e.target.id}Hex`);
       if (hexSpan) {
         hexSpan.textContent = e.target.value;
+      }
+      // Remove active states on preset swatches when user manually picks a color
+      if (e.target.id === "skinColor") {
+        skinPresets.forEach(s => s.classList.remove("active"));
+      } else if (e.target.id === "bgColor") {
+        document.querySelectorAll("#bgPresets .color-swatch").forEach(s => s.classList.remove("active"));
+      } else if (e.target.id === "hairColor" || e.target.id === "hairColor2") {
+        document.querySelectorAll("#hairPresets .color-swatch").forEach(s => s.classList.remove("active"));
       }
       debouncedLoadPreview();
     });
@@ -68,7 +85,184 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Show error
+  // PRESETS MANAGEMENT
+  
+  // 1. Skin Presets (Static standard colors)
+  skinPresets.forEach(swatch => {
+    swatch.addEventListener("click", () => {
+      const color = swatch.dataset.color;
+      document.getElementById("skinColor").value = color;
+      document.getElementById("skinColorHex").textContent = color;
+      
+      skinPresets.forEach(s => s.classList.remove("active"));
+      swatch.classList.add("active");
+      
+      debouncedLoadPreview();
+    });
+  });
+
+  function highlightActiveSkinPreset(color) {
+    skinPresets.forEach(swatch => {
+      if (swatch.dataset.color.toLowerCase() === color.toLowerCase()) {
+        swatch.classList.add("active");
+      } else {
+        swatch.classList.remove("active");
+      }
+    });
+  }
+
+  // 2. Background Presets (Custom)
+  function getBgPresets() {
+    try {
+      return JSON.parse(localStorage.getItem("parolla_avatar_bg_presets")) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveBgPresets(presets) {
+    localStorage.setItem("parolla_avatar_bg_presets", JSON.stringify(presets));
+  }
+
+  function renderBgPresets() {
+    bgPresetsContainer.innerHTML = "";
+    const presets = getBgPresets();
+    const currentVal = document.getElementById("bgColor").value.toLowerCase();
+
+    presets.forEach((color, idx) => {
+      const swatch = document.createElement("div");
+      swatch.className = "color-swatch";
+      swatch.style.backgroundColor = color;
+      swatch.title = color;
+      if (color.toLowerCase() === currentVal) {
+        swatch.classList.add("active");
+      }
+
+      // Click to apply
+      swatch.addEventListener("click", () => {
+        document.getElementById("bgColor").value = color;
+        document.getElementById("bgColorHex").textContent = color;
+        
+        document.querySelectorAll("#bgPresets .color-swatch").forEach(s => s.classList.remove("active"));
+        swatch.classList.add("active");
+        debouncedLoadPreview();
+      });
+
+      // Remove preset element
+      const removeBtn = document.createElement("span");
+      removeBtn.className = "remove-preset";
+      removeBtn.innerHTML = "&times;";
+      removeBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // Avoid applying preset when removing
+        const updated = getBgPresets();
+        updated.splice(idx, 1);
+        saveBgPresets(updated);
+        renderBgPresets();
+      });
+
+      swatch.appendChild(removeBtn);
+      bgPresetsContainer.appendChild(swatch);
+    });
+  }
+
+  addBgPresetBtn.addEventListener("click", () => {
+    const color = document.getElementById("bgColor").value;
+    const presets = getBgPresets();
+    if (!presets.includes(color)) {
+      presets.push(color);
+      saveBgPresets(presets);
+      renderBgPresets();
+    }
+  });
+
+  // 3. Hair Presets (Custom - Solid & Gradient)
+  function getHairPresets() {
+    try {
+      return JSON.parse(localStorage.getItem("parolla_avatar_hair_presets")) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveHairPresets(presets) {
+    localStorage.setItem("parolla_avatar_hair_presets", JSON.stringify(presets));
+  }
+
+  function renderHairPresets() {
+    hairPresetsContainer.innerHTML = "";
+    const presets = getHairPresets();
+    
+    presets.forEach((preset, idx) => {
+      const swatch = document.createElement("div");
+      swatch.className = "color-swatch";
+      
+      if (preset.type === "gradient") {
+        swatch.style.background = `linear-gradient(135deg, ${preset.color1}, ${preset.color2})`;
+        swatch.title = `Gradyan: ${preset.color1} -> ${preset.color2}`;
+      } else {
+        swatch.style.backgroundColor = preset.color1;
+        swatch.title = `Düz: ${preset.color1}`;
+      }
+
+      // Click to apply
+      swatch.addEventListener("click", () => {
+        hairGradientType.value = preset.type;
+        document.getElementById("hairColor").value = preset.color1;
+        document.getElementById("hairColorHex").textContent = preset.color1;
+        
+        if (preset.type === "gradient") {
+          document.getElementById("hairColor2").value = preset.color2;
+          document.getElementById("hairColor2Hex").textContent = preset.color2;
+          document.getElementById("hairGradientDir").value = preset.dir || "vertical";
+        }
+        
+        toggleHairGradientFields();
+        document.querySelectorAll("#hairPresets .color-swatch").forEach(s => s.classList.remove("active"));
+        swatch.classList.add("active");
+        debouncedLoadPreview();
+      });
+
+      // Remove preset element
+      const removeBtn = document.createElement("span");
+      removeBtn.className = "remove-preset";
+      removeBtn.innerHTML = "&times;";
+      removeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const updated = getHairPresets();
+        updated.splice(idx, 1);
+        saveHairPresets(updated);
+        renderHairPresets();
+      });
+
+      swatch.appendChild(removeBtn);
+      hairPresetsContainer.appendChild(swatch);
+    });
+  }
+
+  addHairPresetBtn.addEventListener("click", () => {
+    const type = hairGradientType.value;
+    const color1 = document.getElementById("hairColor").value;
+    const color2 = document.getElementById("hairColor2").value;
+    const dir = document.getElementById("hairGradientDir").value;
+
+    const presets = getHairPresets();
+    
+    // Check duplicates
+    const isDuplicate = presets.some(p => 
+      p.type === type && 
+      p.color1.toLowerCase() === color1.toLowerCase() && 
+      (type === "solid" || (p.color2.toLowerCase() === color2.toLowerCase() && p.dir === dir))
+    );
+
+    if (!isDuplicate) {
+      presets.push({ type, color1, color2, dir });
+      saveHairPresets(presets);
+      renderHairPresets();
+    }
+  });
+
+
+  // Show error helper
   function showError(msg) {
     if (msg) {
       errorMessage.textContent = msg;
@@ -107,6 +301,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       userToken = token;
+      
+      // Load stored custom color presets
+      renderBgPresets();
+      renderHairPresets();
+
       await fetchUserProfile();
     } catch (err) {
       showError("Başlatma sırasında hata oluştu: " + err.message);
@@ -172,6 +371,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const skinPicker = document.getElementById("skinColor");
     skinPicker.value = skinColor.startsWith("#") ? skinColor : `#${skinColor}`;
     document.getElementById("skinColorHex").textContent = skinPicker.value;
+    
+    // Highlight standard skin preset if matches
+    highlightActiveSkinPreset(skinPicker.value);
 
     document.getElementById("avatarStyle").value = getConfigVal(config, "style", "default");
     document.getElementById("flip").checked = getConfigVal(config, "flip", false);
@@ -220,6 +422,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("feat_blush").checked = featuresList.includes("blush");
     document.getElementById("feat_birthmark").checked = featuresList.includes("birthmark");
     document.getElementById("feat_freckles").checked = featuresList.includes("freckles");
+
+    // Refresh custom presets highlighting
+    renderBgPresets();
+    renderHairPresets();
 
     loadPreview();
   }
@@ -426,6 +632,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("bgColorHex").textContent = "#65c9ff";
     document.getElementById("skinColor").value = "#f2d3b1";
     document.getElementById("skinColorHex").textContent = "#f2d3b1";
+    
+    // Reset highlights
+    highlightActiveSkinPreset("#f2d3b1");
+    document.querySelectorAll("#bgPresets .color-swatch").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll("#hairPresets .color-swatch").forEach(s => s.classList.remove("active"));
+
     document.getElementById("avatarStyle").value = "default";
     document.getElementById("flip").checked = false;
     document.getElementById("scale").value = "100";
@@ -493,6 +705,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     randomColor("skinColor");
     randomColor("hairColor");
     randomColor("hairColor2");
+
+    // Remove active swatch highlights
+    skinPresets.forEach(s => s.classList.remove("active"));
+    document.querySelectorAll("#bgPresets .color-swatch").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll("#hairPresets .color-swatch").forEach(s => s.classList.remove("active"));
+
+    // Check if randomized skin color matches a preset to highlight
+    highlightActiveSkinPreset(document.getElementById("skinColor").value);
 
     // Randomize checkboxes
     document.getElementById("feat_mustache").checked = Math.random() > 0.7;
@@ -570,7 +790,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.close(); // Close extension popup
       } else {
         const errDetail = responseInfo ? (responseInfo.error || "Hata kodu: " + responseInfo.status) : "Bilinmeyen hata";
-        showError("Sunucu isteği reddetti: " + errDetail);
+        showError("Sunucer isteği reddetti: " + errDetail);
       }
     } catch (err) {
       showError("Kaydetme sırasında hata: " + err.message);

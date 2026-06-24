@@ -180,6 +180,7 @@
       gap: 6px;
       flex: 1;
       max-width: 180px;
+      justify-content: flex-end;
     }
     input[type="color"] {
       -webkit-appearance: none;
@@ -203,6 +204,71 @@
       font-size: 11px;
       color: var(--text-muted);
       width: 60px;
+      text-align: right;
+    }
+
+    /* Preset Tasarımları */
+    .preset-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+      align-items: center;
+      min-height: 24px;
+    }
+    .preset-add-btn {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .preset-add-btn:hover {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+    .color-swatch {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-color);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .color-swatch:hover {
+      transform: scale(1.2);
+    }
+    .color-swatch.active {
+      border-color: #fff;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+    }
+    .color-swatch .remove-preset {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 10px;
+      height: 10px;
+      background-color: #ef4444;
+      color: white;
+      font-size: 8px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      font-weight: bold;
+      border: 1px solid var(--bg-color);
+    }
+    .color-swatch:hover .remove-preset {
+      display: flex;
     }
 
     /* Checkbox & Switch */
@@ -360,7 +426,11 @@
         <div class="color-input-wrapper">
           <span class="color-hex" id="bgColorHex">#65c9ff</span>
           <input type="color" id="bgColor" value="#65c9ff">
+          <button id="addBgPreset" class="preset-add-btn" title="Arka plan rengini preset kaydet">+</button>
         </div>
+      </div>
+      <div class="preset-container" id="bgPresets">
+        <!-- Arka plan renk presetleri -->
       </div>
     </div>
     <div class="control-group">
@@ -370,6 +440,13 @@
           <span class="color-hex" id="skinColorHex">#f2d3b1</span>
           <input type="color" id="skinColor" value="#f2d3b1">
         </div>
+      </div>
+      <div class="preset-container" id="skinPresets">
+        <!-- Standart Cilt Rengi Presetleri -->
+        <div class="color-swatch" style="background-color: #f2d3b1;" data-color="#f2d3b1" title="Açık Cilt"></div>
+        <div class="color-swatch" style="background-color: #ecad80;" data-color="#ecad80" title="Buğday Cilt"></div>
+        <div class="color-swatch" style="background-color: #9e5622;" data-color="#9e5622" title="Esmer Cilt"></div>
+        <div class="color-swatch" style="background-color: #763900;" data-color="#763900" title="Koyu Cilt"></div>
       </div>
     </div>
     <div class="control-group">
@@ -478,6 +555,7 @@
         <div class="color-input-wrapper">
           <span class="color-hex" id="hairColorHex">#cb6820</span>
           <input type="color" id="hairColor" value="#cb6820">
+          <button id="addHairPreset" class="preset-add-btn" title="Saç rengini preset kaydet">+</button>
         </div>
       </div>
     </div>
@@ -498,6 +576,11 @@
           <option value="horizontal">Yatay (Soldan Sağa)</option>
           <option value="diagonal">Çapraz</option>
         </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="preset-container" id="hairPresets">
+        <!-- Saç renk presetleri (solid ve gradyan) -->
       </div>
     </div>
   </div>
