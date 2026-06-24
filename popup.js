@@ -8,20 +8,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   const randomBtn = document.getElementById("randomBtn");
   const resetBtn = document.getElementById("resetBtn");
 
-  // Hair Gradient UI Toggles
+  // Background Gradient Controls
+  const bgType = document.getElementById("bgType");
+  const bgColor2Group = document.getElementById("bgColor2Group");
+  const bgRotationGroup = document.getElementById("bgRotationGroup");
+
+  // Hair Gradient Controls
   const hairGradientType = document.getElementById("hairGradientType");
   const hairColor2Group = document.getElementById("hairColor2Group");
-  const hairGradientDirGroup = document.getElementById("hairGradientDirGroup");
+  const hairGradientShapeGroup = document.getElementById("hairGradientShapeGroup");
+  const hairGradientAngleGroup = document.getElementById("hairGradientAngleGroup");
+  const hairGradientCenterXGroup = document.getElementById("hairGradientCenterXGroup");
+  const hairGradientCenterYGroup = document.getElementById("hairGradientCenterYGroup");
+  const hairGradientStop1Group = document.getElementById("hairGradientStop1Group");
+  const hairGradientStop2Group = document.getElementById("hairGradientStop2Group");
   const hairColor1Label = document.getElementById("hairColor1Label");
+  const hairGradientShape = document.getElementById("hairGradientShape");
 
   // Presets Containers
   const bgPresetsContainer = document.getElementById("bgPresets");
   const hairPresetsContainer = document.getElementById("hairPresets");
   const skinPresets = document.querySelectorAll("#skinPresets .color-swatch");
+  const fullPresetsContainer = document.getElementById("fullPresets");
 
   // Add Preset Buttons
   const addBgPresetBtn = document.getElementById("addBgPreset");
   const addHairPresetBtn = document.getElementById("addHairPreset");
+  const saveFullPresetBtn = document.getElementById("saveFullPresetBtn");
+  const fullPresetNameInput = document.getElementById("fullPresetName");
 
   let userToken = "";
   let userProfile = null;
@@ -38,6 +52,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // Helper to sync range values with their text label
+  const bindRangeVal = (rangeId, valId) => {
+    const range = document.getElementById(rangeId);
+    const label = document.getElementById(valId);
+    if (range && label) {
+      range.addEventListener("input", (e) => {
+        label.textContent = e.target.value;
+        debouncedLoadPreview();
+      });
+    }
+  };
+  bindRangeVal("bgRotation", "bgRotationVal");
+  bindRangeVal("hairGradientAngle", "hairGradientAngleVal");
+  bindRangeVal("hairGradientCenterX", "hairGradientCenterXVal");
+  bindRangeVal("hairGradientCenterY", "hairGradientCenterYVal");
+  bindRangeVal("hairGradientStop1", "hairGradientStop1Val");
+  bindRangeVal("hairGradientStop2", "hairGradientStop2Val");
+
   // Color picker hex labels auto-sync
   const colorInputs = document.querySelectorAll('input[type="color"]');
   colorInputs.forEach(input => {
@@ -49,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Remove active states on preset swatches when user manually picks a color
       if (e.target.id === "skinColor") {
         skinPresets.forEach(s => s.classList.remove("active"));
-      } else if (e.target.id === "bgColor") {
+      } else if (e.target.id === "bgColor" || e.target.id === "bgColor2") {
         document.querySelectorAll("#bgPresets .color-swatch").forEach(s => s.classList.remove("active"));
       } else if (e.target.id === "hairColor" || e.target.id === "hairColor2") {
         document.querySelectorAll("#hairPresets .color-swatch").forEach(s => s.classList.remove("active"));
@@ -58,8 +90,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Hair Gradient Type Toggle logic
+  // Background fields visibility toggle
+  function toggleBgFields() {
+    if (bgType.value === "gradientLinear") {
+      bgColor2Group.classList.remove("hidden");
+      bgRotationGroup.classList.remove("hidden");
+    } else {
+      bgColor2Group.classList.add("hidden");
+      bgRotationGroup.classList.add("hidden");
+    }
+  }
+
+  bgType.addEventListener("change", () => {
+    toggleBgFields();
+    debouncedLoadPreview();
+  });
+
+  // Hair Gradient Type & Shape Toggle logic
   hairGradientType.addEventListener("change", () => {
+    toggleHairGradientFields();
+    debouncedLoadPreview();
+  });
+
+  hairGradientShape.addEventListener("change", () => {
     toggleHairGradientFields();
     debouncedLoadPreview();
   });
@@ -67,11 +120,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   function toggleHairGradientFields() {
     if (hairGradientType.value === "gradient") {
       hairColor2Group.classList.remove("hidden");
-      hairGradientDirGroup.classList.remove("hidden");
+      hairGradientShapeGroup.classList.remove("hidden");
+      hairGradientStop1Group.classList.remove("hidden");
+      hairGradientStop2Group.classList.remove("hidden");
       hairColor1Label.textContent = "Saç Rengi 1 (Üst)";
+
+      if (hairGradientShape.value === "linear") {
+        hairGradientAngleGroup.classList.remove("hidden");
+        hairGradientCenterXGroup.classList.add("hidden");
+        hairGradientCenterYGroup.classList.add("hidden");
+      } else {
+        hairGradientAngleGroup.classList.add("hidden");
+        hairGradientCenterXGroup.classList.remove("hidden");
+        hairGradientCenterYGroup.classList.remove("hidden");
+      }
     } else {
       hairColor2Group.classList.add("hidden");
-      hairGradientDirGroup.classList.add("hidden");
+      hairGradientShapeGroup.classList.add("hidden");
+      hairGradientAngleGroup.classList.add("hidden");
+      hairGradientCenterXGroup.classList.add("hidden");
+      hairGradientCenterYGroup.classList.add("hidden");
+      hairGradientStop1Group.classList.add("hidden");
+      hairGradientStop2Group.classList.add("hidden");
       hairColor1Label.textContent = "Saç Rengi";
     }
   }
@@ -127,22 +197,53 @@ document.addEventListener("DOMContentLoaded", async () => {
   function renderBgPresets() {
     bgPresetsContainer.innerHTML = "";
     const presets = getBgPresets();
-    const currentVal = document.getElementById("bgColor").value.toLowerCase();
+    
+    // Config values
+    const currentType = bgType.value;
+    const currentC1 = document.getElementById("bgColor").value.toLowerCase();
+    const currentC2 = document.getElementById("bgColor2").value.toLowerCase();
+    const currentRot = parseInt(document.getElementById("bgRotation").value, 10);
 
-    presets.forEach((color, idx) => {
+    presets.forEach((preset, idx) => {
       const swatch = document.createElement("div");
       swatch.className = "color-swatch";
-      swatch.style.backgroundColor = color;
-      swatch.title = color;
-      if (color.toLowerCase() === currentVal) {
-        swatch.classList.add("active");
+
+      // If preset is object (gradient) or string (solid)
+      const isGrad = (typeof preset === 'object' && preset.type === 'gradientLinear');
+      const c1 = isGrad ? preset.color1 : preset;
+      const c2 = isGrad ? preset.color2 : "#ffffff";
+      const rot = isGrad ? (preset.rotation || 90) : 90;
+
+      if (isGrad) {
+        swatch.style.background = `linear-gradient(${rot}deg, ${c1}, ${c2})`;
+        swatch.title = `Gradyan Arka Plan: ${c1} -> ${c2} (${rot}°)`;
+        if (currentType === "gradientLinear" && currentC1 === c1.toLowerCase() && currentC2 === c2.toLowerCase() && currentRot === rot) {
+          swatch.classList.add("active");
+        }
+      } else {
+        swatch.style.backgroundColor = c1;
+        swatch.title = `Düz Arka Plan: ${c1}`;
+        if (currentType === "solid" && currentC1 === c1.toLowerCase()) {
+          swatch.classList.add("active");
+        }
       }
 
       // Click to apply
       swatch.addEventListener("click", () => {
-        document.getElementById("bgColor").value = color;
-        document.getElementById("bgColorHex").textContent = color;
-        
+        if (isGrad) {
+          bgType.value = "gradientLinear";
+          document.getElementById("bgColor").value = c1;
+          document.getElementById("bgColorHex").textContent = c1;
+          document.getElementById("bgColor2").value = c2;
+          document.getElementById("bgColor2Hex").textContent = c2;
+          document.getElementById("bgRotation").value = rot;
+          document.getElementById("bgRotationVal").textContent = rot;
+        } else {
+          bgType.value = "solid";
+          document.getElementById("bgColor").value = c1;
+          document.getElementById("bgColorHex").textContent = c1;
+        }
+        toggleBgFields();
         document.querySelectorAll("#bgPresets .color-swatch").forEach(s => s.classList.remove("active"));
         swatch.classList.add("active");
         debouncedLoadPreview();
@@ -153,7 +254,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       removeBtn.className = "remove-preset";
       removeBtn.innerHTML = "&times;";
       removeBtn.addEventListener("click", (e) => {
-        e.stopPropagation(); // Avoid applying preset when removing
+        e.stopPropagation();
         const updated = getBgPresets();
         updated.splice(idx, 1);
         saveBgPresets(updated);
@@ -166,10 +267,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   addBgPresetBtn.addEventListener("click", () => {
-    const color = document.getElementById("bgColor").value;
+    const type = bgType.value;
+    const color1 = document.getElementById("bgColor").value;
+    const color2 = document.getElementById("bgColor2").value;
+    const rotation = parseInt(document.getElementById("bgRotation").value, 10);
+
     const presets = getBgPresets();
-    if (!presets.includes(color)) {
-      presets.push(color);
+    
+    // Check duplicates
+    const isDuplicate = presets.some(p => {
+      const isGrad = (typeof p === 'object' && p.type === 'gradientLinear');
+      if (type === "gradientLinear") {
+        return isGrad && p.color1.toLowerCase() === color1.toLowerCase() && p.color2.toLowerCase() === color2.toLowerCase() && p.rotation === rotation;
+      } else {
+        return !isGrad && p.toLowerCase() === color1.toLowerCase();
+      }
+    });
+
+    if (!isDuplicate) {
+      if (type === "gradientLinear") {
+        presets.push({ type: "gradientLinear", color1, color2, rotation });
+      } else {
+        presets.push(color1);
+      }
       saveBgPresets(presets);
       renderBgPresets();
     }
@@ -197,11 +317,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       swatch.className = "color-swatch";
       
       if (preset.type === "gradient") {
-        swatch.style.background = `linear-gradient(135deg, ${preset.color1}, ${preset.color2})`;
-        swatch.title = `Gradyan: ${preset.color1} -> ${preset.color2}`;
+        const shape = preset.shape || "linear";
+        if (shape === "linear") {
+          swatch.style.background = `linear-gradient(${preset.angle || 180}deg, ${preset.color1}, ${preset.color2})`;
+        } else {
+          swatch.style.background = `radial-gradient(circle at ${preset.centerX || 50}% ${preset.centerY || 50}%, ${preset.color1}, ${preset.color2})`;
+        }
+        swatch.title = `Gradyan Saç: ${preset.color1} -> ${preset.color2} (${shape})`;
       } else {
         swatch.style.backgroundColor = preset.color1;
-        swatch.title = `Düz: ${preset.color1}`;
+        swatch.title = `Düz Saç: ${preset.color1}`;
       }
 
       // Click to apply
@@ -213,7 +338,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (preset.type === "gradient") {
           document.getElementById("hairColor2").value = preset.color2;
           document.getElementById("hairColor2Hex").textContent = preset.color2;
-          document.getElementById("hairGradientDir").value = preset.dir || "vertical";
+          
+          hairGradientShape.value = preset.shape || "linear";
+          
+          const angle = preset.angle || 180;
+          document.getElementById("hairGradientAngle").value = angle;
+          document.getElementById("hairGradientAngleVal").textContent = angle;
+
+          const cx = preset.centerX || 50;
+          document.getElementById("hairGradientCenterX").value = cx;
+          document.getElementById("hairGradientCenterXVal").textContent = cx;
+
+          const cy = preset.centerY || 50;
+          document.getElementById("hairGradientCenterY").value = cy;
+          document.getElementById("hairGradientCenterYVal").textContent = cy;
+
+          const stop1 = preset.stop1 !== undefined ? preset.stop1 : 0;
+          document.getElementById("hairGradientStop1").value = stop1;
+          document.getElementById("hairGradientStop1Val").textContent = stop1;
+
+          const stop2 = preset.stop2 !== undefined ? preset.stop2 : 100;
+          document.getElementById("hairGradientStop2").value = stop2;
+          document.getElementById("hairGradientStop2Val").textContent = stop2;
         }
         
         toggleHairGradientFields();
@@ -243,7 +389,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const type = hairGradientType.value;
     const color1 = document.getElementById("hairColor").value;
     const color2 = document.getElementById("hairColor2").value;
-    const dir = document.getElementById("hairGradientDir").value;
+    
+    const shape = hairGradientShape.value;
+    const angle = parseInt(document.getElementById("hairGradientAngle").value, 10);
+    const centerX = parseInt(document.getElementById("hairGradientCenterX").value, 10);
+    const centerY = parseInt(document.getElementById("hairGradientCenterY").value, 10);
+    const stop1 = parseInt(document.getElementById("hairGradientStop1").value, 10);
+    const stop2 = parseInt(document.getElementById("hairGradientStop2").value, 10);
 
     const presets = getHairPresets();
     
@@ -251,14 +403,81 @@ document.addEventListener("DOMContentLoaded", async () => {
     const isDuplicate = presets.some(p => 
       p.type === type && 
       p.color1.toLowerCase() === color1.toLowerCase() && 
-      (type === "solid" || (p.color2.toLowerCase() === color2.toLowerCase() && p.dir === dir))
+      (type === "solid" || (
+        p.color2.toLowerCase() === color2.toLowerCase() && 
+        p.shape === shape &&
+        (shape === "radial" ? (p.centerX === centerX && p.centerY === centerY) : p.angle === angle) &&
+        p.stop1 === stop1 &&
+        p.stop2 === stop2
+      ))
     );
 
     if (!isDuplicate) {
-      presets.push({ type, color1, color2, dir });
+      presets.push({ type, color1, color2, shape, angle, centerX, centerY, stop1, stop2 });
       saveHairPresets(presets);
       renderHairPresets();
     }
+  });
+
+  // 4. Genel Full Presetler (Tüm karakter tasarımları)
+  function getFullPresets() {
+    try {
+      return JSON.parse(localStorage.getItem("parolla_avatar_full_presets")) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveFullPresets(presets) {
+    localStorage.setItem("parolla_avatar_full_presets", JSON.stringify(presets));
+  }
+
+  function renderFullPresets() {
+    fullPresetsContainer.innerHTML = "";
+    const presets = getFullPresets();
+    
+    presets.forEach((preset, idx) => {
+      const pill = document.createElement("div");
+      pill.className = "pill-preset";
+      pill.textContent = preset.name || `Karakter ${idx + 1}`;
+
+      // Click to load
+      pill.addEventListener("click", () => {
+        populateForm(preset.config);
+      });
+
+      // Remove full preset
+      const removeBtn = document.createElement("span");
+      removeBtn.className = "remove-pill";
+      removeBtn.innerHTML = " &times;";
+      removeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const updated = getFullPresets();
+        updated.splice(idx, 1);
+        saveFullPresets(updated);
+        renderFullPresets();
+      });
+
+      pill.appendChild(removeBtn);
+      fullPresetsContainer.appendChild(pill);
+    });
+  }
+
+  saveFullPresetBtn.addEventListener("click", () => {
+    const name = fullPresetNameInput.value.trim();
+    if (!name) {
+      alert("Lütfen kaydetmek için bir karakter adı yazın!");
+      return;
+    }
+
+    const presets = getFullPresets();
+    const config = collectConfig();
+
+    presets.push({ name, config });
+    saveFullPresets(presets);
+    renderFullPresets();
+
+    fullPresetNameInput.value = ""; // Clear input
   });
 
 
@@ -302,9 +521,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       userToken = token;
       
-      // Load stored custom color presets
+      // Load stored custom color presets & full presets
       renderBgPresets();
       renderHairPresets();
+      renderFullPresets();
 
       await fetchUserProfile();
     } catch (err) {
@@ -317,7 +537,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function disableForm(disabled) {
     const inputs = document.querySelectorAll("select, input, button");
     inputs.forEach(input => {
-      if (input.id !== "errorMessage") {
+      if (input.id !== "errorMessage" && input.id !== "fullPresetName" && input.id !== "saveFullPresetBtn") {
         input.disabled = disabled;
       }
     });
@@ -360,12 +580,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Populate form controls from Parolla config
   function populateForm(config) {
     // 1. Genel Sekme
-    document.getElementById("bgType").value = getConfigVal(config, "backgroundType", "solid");
+    bgType.value = getConfigVal(config, "backgroundType", "solid");
+    toggleBgFields();
     
-    const bgColor = getConfigVal(config, "backgroundColor", "65c9ff");
+    let bgColors = config.backgroundColor || ["65c9ff"];
+    if (!Array.isArray(bgColors)) bgColors = [bgColors];
+    const bgColor = bgColors[0] || "65c9ff";
+    const bgColor2 = bgColors[1] || "ffffff";
+
     const bgPicker = document.getElementById("bgColor");
     bgPicker.value = bgColor.startsWith("#") ? bgColor : `#${bgColor}`;
     document.getElementById("bgColorHex").textContent = bgPicker.value;
+
+    const bg2Picker = document.getElementById("bgColor2");
+    bg2Picker.value = bgColor2.startsWith("#") ? bgColor2 : `#${bgColor2}`;
+    document.getElementById("bgColor2Hex").textContent = bg2Picker.value;
+
+    let bgRotArr = config.backgroundRotation || [90];
+    if (!Array.isArray(bgRotArr)) bgRotArr = [bgRotArr];
+    const bgRotVal = bgRotArr[0] || 90;
+    document.getElementById("bgRotation").value = bgRotVal;
+    document.getElementById("bgRotationVal").textContent = bgRotVal;
 
     const skinColor = getConfigVal(config, "skinColor", "f2d3b1");
     const skinPicker = document.getElementById("skinColor");
@@ -398,7 +633,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     hair2Picker.value = hairColor2.startsWith("#") ? hairColor2 : `#${hairColor2}`;
     document.getElementById("hairColor2Hex").textContent = hair2Picker.value;
 
-    document.getElementById("hairGradientDir").value = getConfigVal(config, "hairGradientDir", "vertical");
+    hairGradientShape.value = getConfigVal(config, "hairGradientShape", "linear");
+
+    const hairAngle = getConfigVal(config, "hairGradientAngle", 180);
+    document.getElementById("hairGradientAngle").value = hairAngle;
+    document.getElementById("hairGradientAngleVal").textContent = hairAngle;
+
+    const hairCX = getConfigVal(config, "hairGradientCenterX", 50);
+    document.getElementById("hairGradientCenterX").value = hairCX;
+    document.getElementById("hairGradientCenterXVal").textContent = hairCX;
+
+    const hairCY = getConfigVal(config, "hairGradientCenterY", 50);
+    document.getElementById("hairGradientCenterY").value = hairCY;
+    document.getElementById("hairGradientCenterYVal").textContent = hairCY;
+
+    const stop1 = getConfigVal(config, "hairGradientStop1", 0);
+    document.getElementById("hairGradientStop1").value = stop1;
+    document.getElementById("hairGradientStop1Val").textContent = stop1;
+
+    const stop2 = getConfigVal(config, "hairGradientStop2", 100);
+    document.getElementById("hairGradientStop2").value = stop2;
+    document.getElementById("hairGradientStop2Val").textContent = stop2;
 
     toggleHairGradientFields();
 
@@ -438,8 +693,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const cleanHex = (val) => val.replace("#", "").toLowerCase();
 
     // 1. Genel
-    config.backgroundType = [document.getElementById("bgType").value];
-    config.backgroundColor = [cleanHex(document.getElementById("bgColor").value)];
+    config.backgroundType = [bgType.value];
+    if (bgType.value === "gradientLinear") {
+      config.backgroundColor = [cleanHex(document.getElementById("bgColor").value), cleanHex(document.getElementById("bgColor2").value)];
+      config.backgroundRotation = [parseInt(document.getElementById("bgRotation").value, 10)];
+    } else {
+      config.backgroundColor = [cleanHex(document.getElementById("bgColor").value)];
+      config.backgroundRotation = [90];
+    }
+    
     config.skinColor = [cleanHex(document.getElementById("skinColor").value)];
     config.style = [document.getElementById("avatarStyle").value];
     config.flip = document.getElementById("flip").checked;
@@ -465,7 +727,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Hair Gradient Custom Fields
     config.hairGradientType = hairGradientType.value;
     config.hairColor2 = [cleanHex(document.getElementById("hairColor2").value)];
-    config.hairGradientDir = document.getElementById("hairGradientDir").value;
+    config.hairGradientShape = hairGradientShape.value;
+    config.hairGradientAngle = parseInt(document.getElementById("hairGradientAngle").value, 10);
+    config.hairGradientCenterX = parseInt(document.getElementById("hairGradientCenterX").value, 10);
+    config.hairGradientCenterY = parseInt(document.getElementById("hairGradientCenterY").value, 10);
+    config.hairGradientStop1 = parseInt(document.getElementById("hairGradientStop1").value, 10);
+    config.hairGradientStop2 = parseInt(document.getElementById("hairGradientStop2").value, 10);
 
     // 3. Yüz
     config.eyes = [document.getElementById("eyes").value];
@@ -502,23 +769,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     return config;
   }
 
-  // Load preview from DiceBear API
-  let previewTimeout = null;
-  function debouncedLoadPreview() {
-    clearTimeout(previewTimeout);
-    previewTimeout = setTimeout(loadPreview, 300);
-  }
-
-  // Client-side SVG editing to apply the linear gradient to hair elements
-  function applyHairGradient(svgText, color1, color2, direction, originalHairColor) {
-    let x1 = "0%", y1 = "0%", x2 = "0%", y2 = "100%"; // vertical (default)
-    if (direction === "horizontal") {
-      x2 = "100%"; y2 = "0%";
-    } else if (direction === "diagonal") {
-      x2 = "100%"; y2 = "100%";
+  // Client-side SVG editing to apply the linear/radial gradient to hair elements
+  function applyHairGradient(svgText, color1, color2, shape, angle, cxVal, cyVal, s1, s2, originalHairColor) {
+    let gradientHtml = "";
+    if (shape === "linear") {
+      const angleRad = (angle - 90) * Math.PI / 180;
+      const x1 = Math.round(50 - Math.cos(angleRad) * 50) + "%";
+      const y1 = Math.round(50 - Math.sin(angleRad) * 50) + "%";
+      const x2 = Math.round(50 + Math.cos(angleRad) * 50) + "%";
+      const y2 = Math.round(50 + Math.sin(angleRad) * 50) + "%";
+      
+      gradientHtml = `<linearGradient id="hairGradient" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"><stop offset="${s1}%" stop-color="${color1}"/><stop offset="${s2}%" stop-color="${color2}"/></linearGradient>`;
+    } else {
+      // radial
+      gradientHtml = `<radialGradient id="hairGradient" cx="${cxVal}%" cy="${cyVal}%" r="50%"><stop offset="${s1}%" stop-color="${color1}"/><stop offset="${s2}%" stop-color="${color2}"/></radialGradient>`;
     }
-
-    const gradientHtml = `<linearGradient id="hairGradient" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"><stop offset="0%" stop-color="${color1}"/><stop offset="100%" stop-color="${color2}"/></linearGradient>`;
 
     let updatedSvg = svgText;
     if (updatedSvg.includes("<defs>")) {
@@ -557,7 +822,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       if (config.style) params.set("style", config.style[0]);
       if (config.backgroundType) params.set("backgroundType", config.backgroundType[0]);
-      if (config.backgroundColor) params.set("backgroundColor", config.backgroundColor[0]);
+      
+      // Background Colors array parameters mapping
+      if (config.backgroundType[0] === "gradientLinear") {
+        config.backgroundColor.forEach(color => {
+          params.append("backgroundColor", color);
+        });
+        params.set("backgroundRotation", config.backgroundRotation[0]);
+      } else {
+        params.set("backgroundColor", config.backgroundColor[0]);
+      }
+
       if (config.skinColor) params.set("skinColor", config.skinColor[0]);
       
       // Hair
@@ -610,8 +885,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (config.hairGradientType === "gradient" && config.hairProbability !== 0) {
         const c1 = document.getElementById("hairColor").value;
         const c2 = document.getElementById("hairColor2").value;
-        const dir = config.hairGradientDir;
-        svgText = applyHairGradient(svgText, c1, c2, dir, config.hairColor[0]);
+        svgText = applyHairGradient(
+          svgText, 
+          c1, 
+          c2, 
+          config.hairGradientShape, 
+          config.hairGradientAngle, 
+          config.hairGradientCenterX, 
+          config.hairGradientCenterY, 
+          config.hairGradientStop1, 
+          config.hairGradientStop2, 
+          config.hairColor[0]
+        );
       }
 
       currentSvgText = svgText;
@@ -627,9 +912,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Reset all options to default settings
   resetBtn.addEventListener("click", () => {
     // 1. Genel
-    document.getElementById("bgType").value = "solid";
+    bgType.value = "solid";
     document.getElementById("bgColor").value = "#65c9ff";
     document.getElementById("bgColorHex").textContent = "#65c9ff";
+    document.getElementById("bgColor2").value = "#ffffff";
+    document.getElementById("bgColor2Hex").textContent = "#ffffff";
+    document.getElementById("bgRotation").value = "90";
+    document.getElementById("bgRotationVal").textContent = "90";
+    toggleBgFields();
+
     document.getElementById("skinColor").value = "#f2d3b1";
     document.getElementById("skinColorHex").textContent = "#f2d3b1";
     
@@ -647,10 +938,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("hair").value = "short01";
     document.getElementById("hairColor").value = "#cb6820";
     document.getElementById("hairColorHex").textContent = "#cb6820";
+    
     hairGradientType.value = "solid";
     document.getElementById("hairColor2").value = "#ab2a18";
     document.getElementById("hairColor2Hex").textContent = "#ab2a18";
-    document.getElementById("hairGradientDir").value = "vertical";
+    
+    hairGradientShape.value = "linear";
+    document.getElementById("hairGradientAngle").value = "180";
+    document.getElementById("hairGradientAngleVal").textContent = "180";
+    document.getElementById("hairGradientCenterX").value = "50";
+    document.getElementById("hairGradientCenterXVal").textContent = "50";
+    document.getElementById("hairGradientCenterY").value = "50";
+    document.getElementById("hairGradientCenterYVal").textContent = "50";
+    document.getElementById("hairGradientStop1").value = "0";
+    document.getElementById("hairGradientStop1Val").textContent = "0";
+    document.getElementById("hairGradientStop2").value = "100";
+    document.getElementById("hairGradientStop2Val").textContent = "100";
+
     toggleHairGradientFields();
 
     // 3. Yüz
@@ -687,7 +991,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (label) label.textContent = input.value;
     };
 
+    const setRandomRange = (rangeId, valId, min, max) => {
+      const val = Math.floor(Math.random() * (max - min + 1)) + min;
+      document.getElementById(rangeId).value = val;
+      document.getElementById(valId).textContent = val;
+    };
+
     // Randomize dropdowns
+    randomOption("bgType");
     randomOption("hair");
     randomOption("eyes");
     randomOption("eyebrows");
@@ -696,15 +1007,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     randomOption("earrings");
     randomOption("avatarStyle");
     randomOption("hairGradientType");
-    randomOption("hairGradientDir");
+    randomOption("hairGradientShape");
 
+    toggleBgFields();
     toggleHairGradientFields();
 
     // Randomize colors
     randomColor("bgColor");
+    randomColor("bgColor2");
     randomColor("skinColor");
     randomColor("hairColor");
     randomColor("hairColor2");
+
+    // Randomize range inputs
+    setRandomRange("bgRotation", "bgRotationVal", 0, 360);
+    setRandomRange("hairGradientAngle", "hairGradientAngleVal", 0, 360);
+    setRandomRange("hairGradientCenterX", "hairGradientCenterXVal", 0, 100);
+    setRandomRange("hairGradientCenterY", "hairGradientCenterYVal", 0, 100);
+    setRandomRange("hairGradientStop1", "hairGradientStop1Val", 0, 50);
+    setRandomRange("hairGradientStop2", "hairGradientStop2Val", 50, 100);
 
     // Remove active swatch highlights
     skinPresets.forEach(s => s.classList.remove("active"));
@@ -790,7 +1111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.close(); // Close extension popup
       } else {
         const errDetail = responseInfo ? (responseInfo.error || "Hata kodu: " + responseInfo.status) : "Bilinmeyen hata";
-        showError("Sunucer isteği reddetti: " + errDetail);
+        showError("Sunucu isteği reddetti: " + errDetail);
       }
     } catch (err) {
       showError("Kaydetme sırasında hata: " + err.message);
