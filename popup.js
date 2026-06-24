@@ -795,7 +795,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Replaces fill attributes matching the hair color
     const regex1 = new RegExp(`fill="#${originalHairColor}"`, "gi");
     const regex2 = new RegExp(`fill: #${originalHairColor}`, "gi");
-    const regex3 = new RegExp(`fill='\s*#${originalHairColor}\s*'`, "gi");
+    const regex3 = new RegExp(`fill='\\s*#${originalHairColor}\\s*'`, "gi");
     const regex4 = new RegExp(`fill="%23${originalHairColor}"`, "gi");
     const regex5 = new RegExp(`fill='%23${originalHairColor}'`, "gi");
 
@@ -825,9 +825,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       // Background Colors array parameters mapping
       if (config.backgroundType[0] === "gradientLinear") {
-        config.backgroundColor.forEach(color => {
-          params.append("backgroundColor", color);
-        });
+        params.set("backgroundColor", config.backgroundColor.join(","));
         params.set("backgroundRotation", config.backgroundRotation[0]);
       } else {
         params.set("backgroundColor", config.backgroundColor[0]);
@@ -869,9 +867,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         params.set("featuresProbability", "0");
       } else {
         params.set("featuresProbability", "100");
-        config.features.forEach(feat => {
-          params.append("features", feat);
-        });
+        params.set("features", config.features.join(","));
       }
 
       const dicebearUrl = `https://api.dicebear.com/7.x/adventurer/svg?${params.toString()}`;
