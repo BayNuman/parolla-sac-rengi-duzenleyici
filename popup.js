@@ -41,6 +41,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   let userProfile = null;
   let currentSvgText = "";
 
+  // Debounce helper to prevent spamming the DiceBear API
+  function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+  const debouncedLoadPreview = debounce(loadPreview, 300);
+
   // Tab switching
   tabs.forEach(tab => {
     tab.addEventListener("click", () => {
