@@ -41,6 +41,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   let userProfile = null;
   let currentSvgText = "";
 
+  // Locking mechanism state
+  const lockedFeatures = {
+    bgColor: false,
+    skinColor: false,
+    hair: false,
+    hairColor: false,
+    eyes: false,
+    eyebrows: false,
+    mouth: false,
+    glasses: false,
+    earrings: false
+  };
+
+  // Bind lock button toggles
+  document.querySelectorAll(".lock-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const feature = btn.dataset.feature;
+      lockedFeatures[feature] = !lockedFeatures[feature];
+      
+      // Update UI classes
+      btn.classList.toggle("locked", lockedFeatures[feature]);
+      btn.querySelector(".unlock-icon").classList.toggle("hidden", lockedFeatures[feature]);
+      btn.querySelector(".lock-icon").classList.toggle("hidden", !lockedFeatures[feature]);
+    });
+  });
+
   // Debounce helper to prevent spamming the DiceBear API
   function debounce(func, wait) {
     let timeout;
@@ -115,6 +143,91 @@ document.addEventListener("DOMContentLoaded", async () => {
     toggleBgFields();
     debouncedLoadPreview();
   });
+
+  // Aesthetic Themes Selector
+  const colorTheme = document.getElementById("colorTheme");
+  if (colorTheme) {
+    colorTheme.addEventListener("change", () => {
+      const theme = colorTheme.value;
+      if (theme === "custom") return;
+
+      const applyThemeColor = (inputId, hex) => {
+        if (lockedFeatures[inputId] === true) return;
+        const input = document.getElementById(inputId);
+        input.value = hex;
+        const label = document.getElementById(`${inputId}Hex`);
+        if (label) label.textContent = hex;
+      };
+
+      if (theme === "cyberpunk") {
+        if (!lockedFeatures["bgColor"]) {
+          bgType.value = "gradientLinear";
+          applyThemeColor("bgColor", "#0f0c1b");
+          applyThemeColor("bgColor2", "#8a2387");
+          document.getElementById("bgRotation").value = "135";
+          document.getElementById("bgRotationVal").textContent = "135";
+        }
+        applyThemeColor("skinColor", "#9e5622");
+        applyThemeColor("hairColor", "#ff007f");
+        if (!lockedFeatures["hair"]) {
+          hairGradientType.value = "solid";
+        }
+        if (!lockedFeatures["glasses"]) {
+          document.getElementById("glasses").value = "variant03";
+        }
+      } else if (theme === "pastel") {
+        if (!lockedFeatures["bgColor"]) {
+          bgType.value = "gradientLinear";
+          applyThemeColor("bgColor", "#fbc2eb");
+          applyThemeColor("bgColor2", "#a6c1ee");
+          document.getElementById("bgRotation").value = "45";
+          document.getElementById("bgRotationVal").textContent = "45";
+        }
+        applyThemeColor("skinColor", "#f2d3b1");
+        applyThemeColor("hairColor", "#d3c4e3");
+        if (!lockedFeatures["hair"]) {
+          hairGradientType.value = "solid";
+        }
+      } else if (theme === "retro") {
+        if (!lockedFeatures["bgColor"]) {
+          bgType.value = "gradientLinear";
+          applyThemeColor("bgColor", "#f12711");
+          applyThemeColor("bgColor2", "#f5af19");
+          document.getElementById("bgRotation").value = "90";
+          document.getElementById("bgRotationVal").textContent = "90";
+        }
+        applyThemeColor("skinColor", "#ecad80");
+        applyThemeColor("hairColor", "#796a45");
+        if (!lockedFeatures["hair"]) {
+          hairGradientType.value = "solid";
+        }
+      } else if (theme === "darkacademia") {
+        if (!lockedFeatures["bgColor"]) {
+          bgType.value = "gradientLinear";
+          applyThemeColor("bgColor", "#2c1b18");
+          applyThemeColor("bgColor2", "#0f172a");
+          document.getElementById("bgRotation").value = "180";
+          document.getElementById("bgRotationVal").textContent = "180";
+        }
+        applyThemeColor("skinColor", "#f2d3b1");
+        applyThemeColor("hairColor", "#562306");
+        if (!lockedFeatures["hair"]) {
+          hairGradientType.value = "solid";
+        }
+      }
+
+      toggleBgFields();
+      toggleHairGradientFields();
+      
+      // Reset active highlights
+      skinPresets.forEach(s => s.classList.remove("active"));
+      highlightActiveSkinPreset(document.getElementById("skinColor").value);
+      document.querySelectorAll("#bgPresets .color-swatch").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll("#hairPresets .color-swatch").forEach(s => s.classList.remove("active"));
+
+      debouncedLoadPreview();
+    });
+  }
 
   // Hair Gradient Type & Shape Toggle logic
   hairGradientType.addEventListener("change", () => {
@@ -981,6 +1094,56 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
       }
 
+      // Apply Background Pattern & Shape Mask overlays client-side
+      const chosenPattern = document.getElementById("bgPattern").value;
+      const chosenMask = document.getElementById("avatarStyle").value;
+      let defsContent = "";
+
+      // Background Pattern definitions
+      if (chosenPattern === "dots") {
+        defsContent += `<pattern id="bgPattern" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="12" cy="12" r="2.5" fill="#ffffff" opacity="0.25"/></pattern>`;
+      } else if (chosenPattern === "grid") {
+        defsContent += `<pattern id="bgPattern" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#ffffff" stroke-width="1.2" opacity="0.15"/></pattern>`;
+      } else if (chosenPattern === "stripes") {
+        defsContent += `<pattern id="bgPattern" x="0" y="0" width="20" height="20" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="20" stroke="#ffffff" stroke-width="3" opacity="0.15"/></pattern>`;
+      }
+
+      // Shape Mask definitions
+      let maskPath = "";
+      if (chosenMask === "circle") {
+        maskPath = `<circle cx="381" cy="381" r="381" />`;
+      } else if (chosenMask === "squircle") {
+        maskPath = `<path d="M 150 0 L 612 0 C 720 0 762 42 762 150 L 762 612 C 762 720 720 762 612 762 L 150 762 C 42 762 0 720 0 612 L 0 150 C 0 42 42 0 150 0 Z" />`;
+      } else if (chosenMask === "hexagon") {
+        maskPath = `<polygon points="381,0 762,220 762,542 381,762 0,542 0,220" />`;
+      } else if (chosenMask === "shield") {
+        maskPath = `<path d="M 381 0 C 500 0 762 100 762 300 C 762 550 500 710 381 762 C 262 710 0 550 0 300 C 0 100 262 0 381 0 Z" />`;
+      }
+
+      if (maskPath) {
+        defsContent += `<clipPath id="avatarMask">${maskPath}</clipPath>`;
+      }
+
+      // Inject into defs
+      if (defsContent) {
+        if (svgText.includes("<defs>")) {
+          svgText = svgText.replace("<defs>", `<defs>${defsContent}`);
+        } else {
+          svgText = svgText.replace(">", `><defs>${defsContent}</defs>`);
+        }
+      }
+
+      // Inject pattern rect if pattern enabled
+      if (chosenPattern !== "none") {
+        svgText = svgText.replace("</defs>", `</defs><rect width="100%" height="100%" fill="url(#bgPattern)" />`);
+      }
+
+      // Wrap in clipPath group if mask enabled
+      if (chosenMask !== "default") {
+        svgText = svgText.replace("</defs>", "</defs><g clip-path='url(#avatarMask)'>");
+        svgText = svgText.replace("</svg>", "</g></svg>");
+      }
+
       currentSvgText = svgText;
       avatarPreview.innerHTML = svgText;
       showError(null); // Clear errors on success
@@ -993,6 +1156,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Reset all options to default settings
   resetBtn.addEventListener("click", () => {
+    // Reset locked features
+    for (const key in lockedFeatures) {
+      lockedFeatures[key] = false;
+    }
+    document.querySelectorAll(".lock-btn").forEach(btn => {
+      btn.classList.remove("locked");
+      btn.querySelector(".unlock-icon").classList.remove("hidden");
+      btn.querySelector(".lock-icon").classList.add("hidden");
+    });
+
     // 1. Genel
     bgType.value = "solid";
     document.getElementById("bgColor").value = "#65c9ff";
@@ -1058,7 +1231,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Randomize values
   randomBtn.addEventListener("click", () => {
+    // Drop down/color randomization options checking locked features
     const randomOption = (selectId) => {
+      if (lockedFeatures[selectId] === true) return;
       const select = document.getElementById(selectId);
       const options = select.options;
       const index = Math.floor(Math.random() * options.length);
@@ -1066,6 +1241,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     const randomColor = (inputId) => {
+      if (lockedFeatures[inputId] === true) return;
       const randomHex = Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
       const input = document.getElementById(inputId);
       input.value = `#${randomHex}`;
@@ -1096,18 +1272,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Randomize colors
     randomColor("bgColor");
-    randomColor("bgColor2");
+    if (!lockedFeatures["bgColor"]) {
+      randomColor("bgColor2");
+    }
     randomColor("skinColor");
     randomColor("hairColor");
-    randomColor("hairColor2");
+    if (!lockedFeatures["hairColor"]) {
+      randomColor("hairColor2");
+    }
 
     // Randomize range inputs
-    setRandomRange("bgRotation", "bgRotationVal", 0, 360);
-    setRandomRange("hairGradientAngle", "hairGradientAngleVal", 0, 360);
-    setRandomRange("hairGradientCenterX", "hairGradientCenterXVal", 0, 100);
-    setRandomRange("hairGradientCenterY", "hairGradientCenterYVal", 0, 100);
-    setRandomRange("hairGradientStop1", "hairGradientStop1Val", 0, 50);
-    setRandomRange("hairGradientStop2", "hairGradientStop2Val", 50, 100);
+    if (!lockedFeatures["bgColor"]) {
+      setRandomRange("bgRotation", "bgRotationVal", 0, 360);
+    }
+    if (!lockedFeatures["hairColor"]) {
+      setRandomRange("hairGradientAngle", "hairGradientAngleVal", 0, 360);
+      setRandomRange("hairGradientCenterX", "hairGradientCenterXVal", 0, 100);
+      setRandomRange("hairGradientCenterY", "hairGradientCenterYVal", 0, 100);
+      setRandomRange("hairGradientStop1", "hairGradientStop1Val", 0, 50);
+      setRandomRange("hairGradientStop2", "hairGradientStop2Val", 50, 100);
+    }
 
     // Remove active swatch highlights
     skinPresets.forEach(s => s.classList.remove("active"));
@@ -1226,6 +1410,83 @@ document.addEventListener("DOMContentLoaded", async () => {
       applyBtn.textContent = "Uygula 🚀";
     }
   });
+
+  // Interactive 3D Card Tilt Effect on Preview Container
+  const previewContainer = document.querySelector(".preview-container");
+  if (previewContainer) {
+    previewContainer.addEventListener("mousemove", (e) => {
+      const rect = previewContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const width = rect.width;
+      const height = rect.height;
+      
+      const rotateX = -10 * ((y - height / 2) / (height / 2));
+      const rotateY = 10 * ((x - width / 2) / (width / 2));
+      
+      previewContainer.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+    });
+    
+    previewContainer.addEventListener("mouseleave", () => {
+      previewContainer.style.transform = `perspective(600px) rotateX(0deg) rotateY(0deg) scale(1)`;
+    });
+  }
+
+  // Export SVG / PNG Event Listeners
+  const exportSvgBtn = document.getElementById("exportSvgBtn");
+  if (exportSvgBtn) {
+    exportSvgBtn.addEventListener("click", () => {
+      if (!currentSvgText) return;
+      const blob = new Blob([currentSvgText], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `parolla_avatar_${Date.now()}.svg`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  const exportPngBtn = document.getElementById("exportPngBtn");
+  if (exportPngBtn) {
+    exportPngBtn.addEventListener("click", () => {
+      if (!currentSvgText) return;
+      
+      const svgBlob = new Blob([currentSvgText], { type: "image/svg+xml;charset=utf-8" });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const img = new Image();
+      
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 1000;
+        canvas.height = 1000;
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, 1000, 1000);
+        ctx.drawImage(img, 0, 0, 1000, 1000);
+        
+        try {
+          const pngUrl = canvas.toDataURL("image/png");
+          const a = document.createElement("a");
+          a.href = pngUrl;
+          a.download = `parolla_avatar_${Date.now()}.png`;
+          a.click();
+        } catch (err) {
+          console.error("PNG export error:", err);
+          alert("Resim üretilirken hata oluştu: " + err.message);
+        }
+        URL.revokeObjectURL(svgUrl);
+      };
+      
+      img.onerror = (e) => {
+        console.error("Image loading error for PNG export:", e);
+        alert("PNG dosyası oluşturulamadı.");
+        URL.revokeObjectURL(svgUrl);
+      };
+      
+      img.src = svgUrl;
+    });
+  }
 
   // Run initializer
   initialize();

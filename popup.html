@@ -429,6 +429,71 @@
       display: none;
     }
 
+    /* Lock Button Styling */
+    .label-lock-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lock-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s;
+      outline: none;
+    }
+    .lock-btn:hover {
+      color: #f59e0b;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .lock-btn.locked {
+      color: #f59e0b;
+    }
+    
+    /* Export Buttons inside Preview Container */
+    .export-buttons-group {
+      display: flex;
+      gap: 6px;
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+    }
+    .btn-export {
+      padding: 4px 8px !important;
+      font-size: 10px !important;
+      font-weight: 600;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s, background-color 0.2s;
+    }
+    .btn-export:hover {
+      opacity: 1;
+    }
+    
+    /* 3D Tilt Hover Effect on Preview card */
+    .preview-container {
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+    }
+    .preview-container:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+    #avatarPreview {
+      transform: translateZ(20px);
+      transition: transform 0.15s ease;
+    }
+
     /* Gizli Elementler */
     .hidden {
       display: none !important;
@@ -461,6 +526,14 @@
       <!-- Canlı SVG buraya yüklenecek -->
     </div>
     <div id="previewLoader" class="preview-loader">Güncelleniyor...</div>
+    <div class="export-buttons-group">
+      <button id="exportSvgBtn" class="btn btn-secondary btn-export" title="SVG Dosyası İndir">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> SVG
+      </button>
+      <button id="exportPngBtn" class="btn btn-secondary btn-export" title="PNG Resmi İndir">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> PNG
+      </button>
+    </div>
   </div>
 
   <div class="tabs">
@@ -474,6 +547,18 @@
   <div id="tab-general" class="tab-content active">
     <div class="control-group">
       <div class="control-row">
+        <label for="colorTheme">Hazır Renk Teması</label>
+        <select id="colorTheme">
+          <option value="custom">Özel Tasarım</option>
+          <option value="cyberpunk">Cyberpunk (Neon Mor/Sarı)</option>
+          <option value="pastel">Pastel Rüya (Pembe/Mavi)</option>
+          <option value="retro">Retro Sunset (Turuncu/Sarı)</option>
+          <option value="darkacademia">Dark Academia (Kahve/Yeşil)</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
         <label for="bgType">Arka Plan Tipi</label>
         <select id="bgType">
           <option value="solid">Düz Renk</option>
@@ -483,7 +568,13 @@
     </div>
     <div class="control-group">
       <div class="control-row">
-        <label for="bgColor">Arka Plan Rengi</label>
+        <div class="label-lock-wrapper">
+          <label for="bgColor">Arka Plan Rengi</label>
+          <button class="lock-btn" data-feature="bgColor" title="Arka plan rengini kilitle">
+            <svg class="unlock-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <svg class="lock-icon hidden" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+        </div>
         <div class="color-input-wrapper">
           <span class="color-hex" id="bgColorHex">#65c9ff</span>
           <input type="color" id="bgColor" value="#65c9ff">
@@ -513,7 +604,24 @@
     </div>
     <div class="control-group">
       <div class="control-row">
-        <label for="skinColor">Cilt Rengi</label>
+        <label for="bgPattern">Arka Plan Deseni</label>
+        <select id="bgPattern">
+          <option value="none">Yok (Düz Arka Plan)</option>
+          <option value="dots">Noktalar (Dots)</option>
+          <option value="grid">Izgara (Grid)</option>
+          <option value="stripes">Çizgiler (Stripes)</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <div class="label-lock-wrapper">
+          <label for="skinColor">Cilt Rengi</label>
+          <button class="lock-btn" data-feature="skinColor" title="Cilt rengini kilitle">
+            <svg class="unlock-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <svg class="lock-icon hidden" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+        </div>
         <div class="color-input-wrapper">
           <span class="color-hex" id="skinColorHex">#f2d3b1</span>
           <input type="color" id="skinColor" value="#f2d3b1">
@@ -529,10 +637,13 @@
     </div>
     <div class="control-group">
       <div class="control-row">
-        <label for="avatarStyle">Kenarlık Tipi</label>
+        <label for="avatarStyle">Kenarlık Maskesi</label>
         <select id="avatarStyle">
           <option value="default">Şeffaf (Kenarlıksız)</option>
           <option value="circle">Yuvarlak (Circle)</option>
+          <option value="squircle">Squircle (Yumuşatılmış Kare)</option>
+          <option value="hexagon">Altıgen (Hexagon)</option>
+          <option value="shield">Kalkan (Shield)</option>
         </select>
       </div>
     </div>
@@ -563,7 +674,13 @@
   <div id="tab-hair" class="tab-content">
     <div class="control-group">
       <div class="control-row">
-        <label for="hair">Saç Stili</label>
+        <div class="label-lock-wrapper">
+          <label for="hair">Saç Stili</label>
+          <button class="lock-btn" data-feature="hair" title="Saç stilini kilitle">
+            <svg class="unlock-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <svg class="lock-icon hidden" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+        </div>
         <select id="hair">
           <option value="none">Saçsız / Kel</option>
           <optgroup label="Kısa Saçlar">
@@ -629,7 +746,13 @@
     </div>
     <div class="control-group" id="hairColor1Group">
       <div class="control-row">
-        <label for="hairColor" id="hairColor1Label">Saç Rengi</label>
+        <div class="label-lock-wrapper">
+          <label for="hairColor" id="hairColor1Label">Saç Rengi</label>
+          <button class="lock-btn" data-feature="hairColor" title="Saç rengini kilitle">
+            <svg class="unlock-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <svg class="lock-icon hidden" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+        </div>
         <div class="color-input-wrapper">
           <span class="color-hex" id="hairColorHex">#cb6820</span>
           <input type="color" id="hairColor" value="#cb6820">
@@ -697,7 +820,13 @@
   <div id="tab-face" class="tab-content">
     <div class="control-group">
       <div class="control-row">
-        <label for="eyes">Göz Yapısı</label>
+        <div class="label-lock-wrapper">
+          <label for="eyes">Göz Yapısı</label>
+          <button class="lock-btn" data-feature="eyes" title="Göz yapısını kilitle">
+            <svg class="unlock-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <svg class="lock-icon hidden" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+        </div>
         <select id="eyes">
           <option value="variant01">Göz 1</option>
           <option value="variant02">Göz 2</option>
@@ -730,7 +859,13 @@
     </div>
     <div class="control-group">
       <div class="control-row">
-        <label for="eyebrows">Kaş Yapısı</label>
+        <div class="label-lock-wrapper">
+          <label for="eyebrows">Kaş Yapısı</label>
+          <button class="lock-btn" data-feature="eyebrows" title="Kaş yapısını kilitle">
+            <svg class="unlock-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <svg class="lock-icon hidden" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+        </div>
         <select id="eyebrows">
           <option value="variant01">Kaş 1</option>
           <option value="variant02">Kaş 2</option>
@@ -752,7 +887,13 @@
     </div>
     <div class="control-group">
       <div class="control-row">
-        <label for="mouth">Ağız Yapısı</label>
+        <div class="label-lock-wrapper">
+          <label for="mouth">Ağız Yapısı</label>
+          <button class="lock-btn" data-feature="mouth" title="Ağız yapısını kilitle">
+            <svg class="unlock-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <svg class="lock-icon hidden" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+        </div>
         <select id="mouth">
           <option value="variant01">Ağız 1 (Gülümseme)</option>
           <option value="variant02">Ağız 2</option>
@@ -793,7 +934,13 @@
   <div id="tab-details" class="tab-content">
     <div class="control-group">
       <div class="control-row">
-        <label for="glasses">Gözlük</label>
+        <div class="label-lock-wrapper">
+          <label for="glasses">Gözlük</label>
+          <button class="lock-btn" data-feature="glasses" title="Gözlüğü kilitle">
+            <svg class="unlock-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <svg class="lock-icon hidden" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+        </div>
         <select id="glasses">
           <option value="none">Gözlük Yok</option>
           <option value="variant01">Gözlük 1</option>
@@ -806,7 +953,13 @@
     </div>
     <div class="control-group">
       <div class="control-row">
-        <label for="earrings">Küpeler</label>
+        <div class="label-lock-wrapper">
+          <label for="earrings">Küpeler</label>
+          <button class="lock-btn" data-feature="earrings" title="Küpeleri kilitle">
+            <svg class="unlock-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <svg class="lock-icon hidden" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </button>
+        </div>
         <select id="earrings">
           <option value="none">Küpe Yok</option>
           <option value="variant01">Küpe 1</option>
