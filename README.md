@@ -1,14 +1,21 @@
-# 🎨 Parolla.app Saç Rengi Düzenleyici (Hair Color Editor)
+# 🎨 Parolla.app Avatar Tasarımcısı (Avatar Designer)
 
-Parolla.app üzerindeki avatarınızın saç rengini dilediğiniz herhangi bir özel renk (HEX kodu) ile değiştirmenizi sağlayan mini bir Chrome Eklentisidir.
+Parolla.app üzerindeki DiceBear avatarınızı, oyun içi sınırlandırmalara takılmadan dilediğiniz gibi tamamen özelleştirmenizi ve tasarlamanızı sağlayan profesyonel bir Chrome Eklentisidir.
 
 ---
 
 ## 🚀 Özellikler (Features)
 
-- 🎨 **Sınırsız Renk Seçeneği:** Sunulan varsayılan renk paletlerinin dışına çıkarak dilediğiniz rengi HEX/RGB renk seçici ile uygulayabilirsiniz.
-- ⚡ **Kolay ve Hızlı:** Tek tıkla aktif sekmedeki Parolla profilinize saç renginizi yansıtır.
-- 🔒 **Güvenli:** Sadece aktif sekmedeki Parolla API'si ve çerezlerinizi kullanarak doğrudan resmi sunucu üzerinden güncelleme yapar, şifre veya hassas bilgi talep etmez.
+- 🎨 **Canlı Önizleme:** Yaptığınız tüm değişiklikleri (saç, kıyafet, göz, sakal vb.) anlık olarak eklenti arayüzünde canlı olarak görün.
+- 🌈 **Sınırsız Renk Paleti:** Arka plan, cilt, saç, kıyafet, sakal ve aksesuar renklerini varsayılan kısıtlı seçeneklerin dışına çıkarak HEX renk seçicileri ile özgürce belirleyin.
+- 🧑‍🎤 **Gelişmiş DiceBear Özelleştirmesi:**
+  - **Saç ve Başlıklar:** Düzinelerce farklı saç kesimi, şapka, bere, türban seçeneği ve özel renkleri.
+  - **Yüz Detayları:** Göz yapıları, kaş ifadeleri, ağız şekilleri ve sakal/bıyık stilleri.
+  - **Giyim ve Aksesuarlar:** Tişört, kapüşonlu, ceket modelleri, tişört üzeri grafik baskıları ve gözlük/göz bandı alternatifleri.
+  - **Genel Ayarlar:** Şeffaf/yuvarlak kenarlık tipleri, yönü çevirme (flip), ölçekleme (scale) ve rastgele tohum (seed) belirleme.
+- 🎲 **Zarla (Randomizer):** Tek bir tıkla tamamen rastgele ve eğlenceli avatarlar üretin.
+- ⚡ **Kolay Kayıt:** Tasarladığınız avatarı doğrudan Parolla.app API'sine göndererek tek tıkla resmi profilinize uygulayın.
+- 🔒 **Güvenli:** Eklenti şifre veya hassas bilgi talep etmez; sadece aktif Parolla.app oturum çerezinizi kullanarak doğrudan profilinizi günceller.
 
 ---
 
@@ -49,10 +56,11 @@ iPhone kullananlar için Apple'ın katı kuralları olsa da App Store'da Chrome 
 ## 📖 Kullanım Şekli (How to Use)
 
 1. Tarayıcınızdan [Parolla.app](https://parolla.app) adresine gidin ve hesabınıza giriş yapın.
-2. Sağ üstten avatar/profil düzenleme alanına geçin.
-3. Uzantı simgemize (🎨) tıklayarak saç rengi seçiciyi açın.
-4. İstediğiniz rengi seçin ve **Rengi Uygula 🚀** butonuna basın.
-5. İşlem başarılı uyarısından sonra profil sayfanız otomatik yenilenecek ve yeni saç renginiz aktif olacaktır!
+2. Sağ üstten profil/avatar düzenleme sayfasına geçin.
+3. Uzantı simgemize (🎨) tıklayarak **Parolla Avatar Tasarımcısı** panelini açın.
+4. Sekmeler arasında gezinerek saç modelinizi, kıyafetlerinizi, yüz ifadelerinizi ve bunların tüm renklerini dilediğiniz gibi özelleştirin (veya **Zarla 🎲** butonuyla rastgele bir tasarım yapın).
+5. İstediğiniz görünümü elde ettiğinizde **Değişiklikleri Uygula 🚀** butonuna basın.
+6. Başarı uyarısının ardından sayfanız otomatik olarak yenilenecek ve yeni avatarınız profilinizde görünecektir!
 
 ---
 

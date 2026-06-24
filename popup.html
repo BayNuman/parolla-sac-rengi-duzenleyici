@@ -2,58 +2,606 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
+  <title>Parolla Avatar Tasarımcısı 🎨</title>
   <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --text-color: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
     body {
-      width: 220px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 12px;
+      width: 400px;
+      font-family: var(--font-family);
       margin: 0;
-      background-color: #f8f9fa;
-      color: #333;
+      padding: 16px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      box-sizing: border-box;
+      user-select: none;
     }
-    h3 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      font-size: 14px;
+
+    /* Başlık */
+    header {
       text-align: center;
-      color: #4a5568;
+      margin-bottom: 16px;
     }
-    .wrapper {
+    h1 {
+      font-size: 18px;
+      margin: 0;
+      background: linear-gradient(to right, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+    p.subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin: 4px 0 0 0;
+    }
+
+    /* Önizleme Alanı */
+    .preview-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle, #334155 0%, #1e293b 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      min-height: 140px;
+    }
+    #avatarPreview {
+      width: 130px;
+      height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #avatarPreview svg {
+      width: 100%;
+      height: 100%;
+    }
+    .preview-loader {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(30, 41, 59, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      border-radius: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Sekme Yapısı */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 6px 4px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .tab-btn:hover {
+      color: var(--text-color);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .tab-btn.active {
+      color: #fff;
+      background-color: var(--accent-color);
+    }
+
+    /* Sekme İçeriği */
+    .tab-content {
+      display: none;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-bottom: 16px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Kaydırma Çubuğu */
+    .tab-content::-webkit-scrollbar {
+      width: 4px;
+    }
+    .tab-content::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    .tab-content::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 2px;
+    }
+
+    /* Kontroller */
+    .control-group {
+      margin-bottom: 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 4px;
+    }
+    .control-row {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
+      gap: 12px;
+    }
+    label {
+      font-size: 12px;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+    select, input[type="text"] {
+      background-color: #1e293b;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      border-radius: 6px;
+      padding: 6px;
+      font-size: 12px;
+      outline: none;
+      flex: 1;
+      max-width: 180px;
+      transition: border-color 0.2s;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: var(--accent-color);
+    }
+
+    /* Renk Seçiciler */
+    .color-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      max-width: 180px;
     }
     input[type="color"] {
-      width: 100%;
-      height: 40px;
+      -webkit-appearance: none;
       border: none;
-      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
       cursor: pointer;
       background: none;
+      padding: 0;
     }
-    button {
-      width: 100%;
-      padding: 8px 12px;
-      background-color: #3742fa;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch {
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+    }
+    .color-hex {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      width: 60px;
+    }
+
+    /* Checkbox & Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
       cursor: pointer;
-      transition: background-color 0.2s;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #334155;
+      transition: .3s;
+      border-radius: 20px;
     }
-    button:hover {
-      background-color: #2f3542;
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--accent-color);
+    }
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+
+    /* Butonlar */
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+    button.btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-secondary {
+      background-color: #1e293b;
+      color: var(--text-color);
+      border: 1px solid var(--border-color) !important;
+      flex: 1;
+    }
+    .btn-secondary:hover {
+      background-color: #334155;
+    }
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: #fff;
+      flex: 2;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+    
+    /* Uyarı / Hata mesajı */
+    .error-msg {
+      background-color: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      text-align: center;
+      margin-bottom: 12px;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <h3>Saç Rengi Seçin 🎨</h3>
-    <input type="color" id="hairColorPicker" value="#fca8d2">
-    <button id="applyColorBtn">Rengi Uygula 🚀</button>
+
+  <header>
+    <h1>Parolla Avatar Editor 🎨</h1>
+    <p class="subtitle">DiceBear sınırlarını kaldırın ve avatarınızı özelleştirin</p>
+  </header>
+
+  <div id="errorMessage" class="error-msg"></div>
+
+  <div class="preview-container">
+    <div id="avatarPreview">
+      <!-- Canlı SVG buraya yüklenecek -->
+    </div>
+    <div id="previewLoader" class="preview-loader">Güncelleniyor...</div>
   </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="tab-general">Genel</button>
+    <button class="tab-btn" data-tab="tab-hair">Saç/Şapka</button>
+    <button class="tab-btn" data-tab="tab-face">Yüz/Sakal</button>
+    <button class="tab-btn" data-tab="tab-style">Giyim/Aksesuar</button>
+  </div>
+
+  <!-- GENEL SEKME -->
+  <div id="tab-general" class="tab-content active">
+    <div class="control-group">
+      <div class="control-row">
+        <label for="bgType">Arka Plan Tipi</label>
+        <select id="bgType">
+          <option value="solid">Düz Renk</option>
+          <option value="gradientLinear">Gradyan</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="bgColor">Arka Plan Rengi</label>
+        <div class="color-input-wrapper">
+          <span class="color-hex" id="bgColorHex">#65c9ff</span>
+          <input type="color" id="bgColor" value="#65c9ff">
+        </div>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="skinColor">Cilt Rengi</label>
+        <div class="color-input-wrapper">
+          <span class="color-hex" id="skinColorHex">#ffdbb4</span>
+          <input type="color" id="skinColor" value="#ffdbb4">
+        </div>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="avatarStyle">Kenarlık Tipi</label>
+        <select id="avatarStyle">
+          <option value="default">Şeffaf (Kenarlıksız)</option>
+          <option value="circle">Yuvarlak (Circle)</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="flip">Yönü Çevir (Flip)</label>
+        <label class="switch">
+          <input type="checkbox" id="flip">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="scale">Ölçek (Scale - %)</label>
+        <input type="text" id="scale" value="100">
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="seed">Rastgele Tohum (Seed)</label>
+        <input type="text" id="seed" placeholder="Benzersiz kelime">
+      </div>
+    </div>
+  </div>
+
+  <!-- SAÇ/ŞAPKA SEKME -->
+  <div id="tab-hair" class="tab-content">
+    <div class="control-group">
+      <div class="control-row">
+        <label for="top">Saç/Şapka Stili</label>
+        <select id="top">
+          <!-- Saç ve Şapka Enumu -->
+          <option value="none">Saçsız / Kel</option>
+          <option value="bob">Bob</option>
+          <option value="bun">Topuz (Bun)</option>
+          <option value="curly">Kıvırcık (Curly)</option>
+          <option value="curvy">Dalgalı (Curvy)</option>
+          <option value="dreads">Dreadlocks</option>
+          <option value="dreads01">Dreads 01</option>
+          <option value="dreads02">Dreads 02</option>
+          <option value="frida">Frida Örgüsü</option>
+          <option value="fro">Afro</option>
+          <option value="froBand">Bantlı Afro</option>
+          <option value="frizzle">Kabarık (Frizzle)</option>
+          <option value="longButNotTooLong">Orta Boy Saç</option>
+          <option value="miaWallace">Küt (Mia Wallace)</option>
+          <option value="shavedSides">Yanlar Kazınmış</option>
+          <option value="shaggy">Dağınık (Shaggy)</option>
+          <option value="shaggyMullet">Mullet</option>
+          <option value="shortCurly">Kısa Kıvırcık</option>
+          <option value="shortFlat">Kısa Düz</option>
+          <option value="shortRound">Kısa Yuvarlak</option>
+          <option value="shortWaved">Kısa Dalgalı</option>
+          <option value="sides">Sadece Yanlar</option>
+          <option value="straight01">Düz 01</option>
+          <option value="straight02">Düz 02</option>
+          <option value="straightAndStrand">Perçemli Düz</option>
+          <option value="theCaesar">Sezar Kesim</option>
+          <option value="theCaesarAndSidePart">Yandan Ayrılmış Sezar</option>
+          <option value="bigHair">Hacimli Saç</option>
+          <option value="hat">Beyzbol Şapkası</option>
+          <option value="hijab">Hicap (Başörtüsü)</option>
+          <option value="turban">Türban</option>
+          <option value="winterHat1">Bere 1</option>
+          <option value="winterHat02">Bere 2</option>
+          <option value="winterHat03">Bere 3</option>
+          <option value="winterHat04">Bere 4</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="hairColor">Saç Rengi</label>
+        <div class="color-input-wrapper">
+          <span class="color-hex" id="hairColorHex">#4a312c</span>
+          <input type="color" id="hairColor" value="#4a312c">
+        </div>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="hatColor">Şapka/Bere Rengi</label>
+        <div class="color-input-wrapper">
+          <span class="color-hex" id="hatColorHex">#262e33</span>
+          <input type="color" id="hatColor" value="#262e33">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YÜZ/SAKAL SEKME -->
+  <div id="tab-face" class="tab-content">
+    <div class="control-group">
+      <div class="control-row">
+        <label for="eyes">Göz Yapısı</label>
+        <select id="eyes">
+          <option value="default">Varsayılan</option>
+          <option value="closed">Kapalı</option>
+          <option value="cry">Ağlayan</option>
+          <option value="eyeRoll">Göz Deviren</option>
+          <option value="happy">Mutlu</option>
+          <option value="hearts">Kalpli</option>
+          <option value="side">Yana Bakan</option>
+          <option value="squint">Kısık</option>
+          <option value="surprised">Şaşırmış</option>
+          <option value="wink">Göz Kırpan</option>
+          <option value="winkWacky">Çılgın Göz Kırpma</option>
+          <option value="xDizzy">Baygın / X_X</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="eyebrows">Kaş Yapısı</label>
+        <select id="eyebrows">
+          <option value="defaultNatural">Doğal Varsayılan</option>
+          <option value="default">İnce Varsayılan</option>
+          <option value="angryNatural">Öfkeli Doğal</option>
+          <option value="angry">Öfkeli İnce</option>
+          <option value="flatNatural">Düz Doğal</option>
+          <option value="frownNatural">Çatık Doğal</option>
+          <option value="raisedExcitedNatural">Heyecanlı Doğal</option>
+          <option value="raisedExcited">Heyecanlı İnce</option>
+          <option value="sadConcernedNatural">Üzgün Doğal</option>
+          <option value="sadConcerned">Üzgün İnce</option>
+          <option value="unibrowNatural">Tek Kaş</option>
+          <option value="upDownNatural">Biri Yukarıda Doğal</option>
+          <option value="upDown">Biri Yukarıda İnce</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="mouth">Ağız İfadesi</label>
+        <select id="mouth">
+          <option value="default">Varsayılan (Hafif Tebessüm)</option>
+          <option value="smile">Gülümseyen</option>
+          <option value="serious">Ciddi / Düz</option>
+          <option value="sad">Üzgün</option>
+          <option value="concerned">Endişeli</option>
+          <option value="disbelief">Şaşkın/İnanmayan</option>
+          <option value="eating">Yemek Yiyen</option>
+          <option value="grimace">Yüzünü Ekşiten</option>
+          <option value="screamOpen">Bağıran</option>
+          <option value="tongue">Dil Çıkaran</option>
+          <option value="twinkle">Işıltılı Gülüş</option>
+          <option value="vomit">Kusan</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="facialHair">Sakal & Bıyık</label>
+        <select id="facialHair">
+          <option value="none">Sakal Yok</option>
+          <option value="beardLight">Hafif Kirli Sakal</option>
+          <option value="beardMedium">Normal Sakal</option>
+          <option value="beardMajestic">Gür Sakal</option>
+          <option value="moustacheFancy">Kıvrık Bıyık</option>
+          <option value="moustacheMagnum">Kalın Bıyık</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="facialHairColor">Sakal Rengi</label>
+        <div class="color-input-wrapper">
+          <span class="color-hex" id="facialHairColorHex">#4a312c</span>
+          <input type="color" id="facialHairColor" value="#4a312c">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GİYİM/AKSESUAR SEKME -->
+  <div id="tab-style" class="tab-content">
+    <div class="control-group">
+      <div class="control-row">
+        <label for="clothing">Giyim Stili</label>
+        <select id="clothing">
+          <option value="shirtCrewNeck">Bisiklet Yaka Tişört</option>
+          <option value="shirtScoopNeck">U Yaka Tişört</option>
+          <option value="shirtVNeck">V Yaka Tişört</option>
+          <option value="graphicShirt">Baskılı Tişört</option>
+          <option value="hoodie">Kapüşonlu (Hoodie)</option>
+          <option value="overall">Tulum (Overall)</option>
+          <option value="collarAndSweater">Gömlek & Kazak</option>
+          <option value="blazerAndShirt">Blazer Ceket & Gömlek</option>
+          <option value="blazerAndSweater">Blazer Ceket & Kazak</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="clothesColor">Kıyafet Rengi</label>
+        <div class="color-input-wrapper">
+          <span class="color-hex" id="clothesColorHex">#65c9ff</span>
+          <input type="color" id="clothesColor" value="#65c9ff">
+        </div>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="clothingGraphic">Tişört Baskısı</label>
+        <select id="clothingGraphic">
+          <option value="none">Baskısız</option>
+          <option value="bat">Yarasa</option>
+          <option value="bear">Ayı</option>
+          <option value="cumbia">Cumbia</option>
+          <option value="deer">Geyik</option>
+          <option value="diamond">Elmas</option>
+          <option value="hola">Hola</option>
+          <option value="pizza">Pizza</option>
+          <option value="resist">Yumruk (Resist)</option>
+          <option value="skull">Kafatası</option>
+          <option value="skullOutline">Kafatası Çizgisel</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="accessories">Aksesuar (Gözlük/Göz Bandı)</label>
+        <select id="accessories">
+          <option value="none">Aksesuar Yok</option>
+          <option value="prescription01">Gözlük 1</option>
+          <option value="prescription02">Gözlük 2</option>
+          <option value="round">Yuvarlak Gözlük</option>
+          <option value="sunglasses">Güneş Gözlüğü</option>
+          <option value="wayfarers">Wayfarer Gözlük</option>
+          <option value="eyepatch">Korsan Göz Bandı</option>
+          <option value="kurt">Kurt Gözlüğü</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-row">
+        <label for="accessoriesColor">Aksesuar Rengi</label>
+        <div class="color-input-wrapper">
+          <span class="color-hex" id="accessoriesColorHex">#ffffff</span>
+          <input type="color" id="accessoriesColor" value="#ffffff">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="randomBtn" class="btn btn-secondary">Zarla 🎲</button>
+    <button id="applyBtn" class="btn btn-primary">Değişiklikleri Uygula 🚀</button>
+  </div>
+
   <script src="popup.js"></script>
 </body>
 </html>

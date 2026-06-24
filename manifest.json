@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Avatar Renk Değiştirici 🎨",
-  "version": "2.0",
-  "description": "Parolla'da avatar saç rengini dilediğiniz renk ile değiştirir.",
+  "name": "Parolla Avatar Tasarımcısı 🎨",
+  "version": "3.0",
+  "description": "Parolla'da avatarınızı tüm DiceBear sınırlarını kaldırarak dilediğiniz gibi özelleştirmenizi sağlar.",
   "permissions": ["activeTab", "scripting"],
   "action": {
     "default_popup": "popup.html"
