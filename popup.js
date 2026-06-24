@@ -1099,7 +1099,23 @@ document.addEventListener("DOMContentLoaded", async () => {
               },
               body: JSON.stringify(payloadData)
             });
-            return { ok: res.ok, status: res.status };
+            if (!res.ok) {
+              let errorMsg = "Hata kodu: " + res.status;
+              try {
+                const errJson = await res.json();
+                if (errJson && errJson.error && errJson.error.message) {
+                  errorMsg = errJson.error.message;
+                  if (errJson.error.details && errJson.error.details.errors) {
+                    const details = errJson.error.details.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+                    errorMsg += ` (${details})`;
+                  }
+                } else if (errJson && errJson.message) {
+                  errorMsg = errJson.message;
+                }
+              } catch (e) {}
+              return { ok: false, error: errorMsg };
+            }
+            return { ok: true, status: res.status };
           } catch (e) {
             return { ok: false, error: e.message };
           }
