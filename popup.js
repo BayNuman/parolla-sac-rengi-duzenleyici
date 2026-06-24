@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     bgPicker.value = bgColor.startsWith("#") ? bgColor : `#${bgColor}`;
     document.getElementById("bgColorHex").textContent = bgPicker.value;
 
-    const skinColor = getConfigVal(config, "skinColor", "ffdbb4");
+    const skinColor = getConfigVal(config, "skinColor", "f2d3b1");
     const skinPicker = document.getElementById("skinColor");
     skinPicker.value = skinColor.startsWith("#") ? skinColor : `#${skinColor}`;
     document.getElementById("skinColorHex").textContent = skinPicker.value;
@@ -154,53 +154,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("seed").value = getConfigVal(config, "seed", "");
 
     // 2. Saç Sekme
-    const topVal = getConfigVal(config, "top", "bob");
-    const topProb = getConfigVal(config, "topProbability", 100);
-    document.getElementById("top").value = topProb === 0 ? "none" : topVal;
+    const hairVal = getConfigVal(config, "hair", "short01");
+    const hairProb = getConfigVal(config, "hairProbability", 100);
+    document.getElementById("hair").value = hairProb === 0 ? "none" : hairVal;
 
-    const hairColor = getConfigVal(config, "hairColor", "4a312c");
+    const hairColor = getConfigVal(config, "hairColor", "cb6820");
     const hairPicker = document.getElementById("hairColor");
     hairPicker.value = hairColor.startsWith("#") ? hairColor : `#${hairColor}`;
     document.getElementById("hairColorHex").textContent = hairPicker.value;
 
-    const hatColor = getConfigVal(config, "hatColor", "262e33");
-    const hatPicker = document.getElementById("hatColor");
-    hatPicker.value = hatColor.startsWith("#") ? hatColor : `#${hatColor}`;
-    document.getElementById("hatColorHex").textContent = hatPicker.value;
-
     // 3. Yüz Sekme
-    document.getElementById("eyes").value = getConfigVal(config, "eyes", "default");
-    document.getElementById("eyebrows").value = getConfigVal(config, "eyebrows", "defaultNatural");
-    document.getElementById("mouth").value = getConfigVal(config, "mouth", "default");
+    document.getElementById("eyes").value = getConfigVal(config, "eyes", "variant01");
+    document.getElementById("eyebrows").value = getConfigVal(config, "eyebrows", "variant01");
+    document.getElementById("mouth").value = getConfigVal(config, "mouth", "variant01");
 
-    const facialHairVal = getConfigVal(config, "facialHair", "none");
-    const facialHairProb = getConfigVal(config, "facialHairProbability", 0);
-    document.getElementById("facialHair").value = facialHairProb === 0 ? "none" : facialHairVal;
+    // 4. Detay / Gözlük
+    const glassesVal = getConfigVal(config, "glasses", "none");
+    const glassesProb = getConfigVal(config, "glassesProbability", 0);
+    document.getElementById("glasses").value = glassesProb === 0 ? "none" : glassesVal;
 
-    const facialHairColor = getConfigVal(config, "facialHairColor", "4a312c");
-    const facialHairPicker = document.getElementById("facialHairColor");
-    facialHairPicker.value = facialHairColor.startsWith("#") ? facialHairColor : `#${facialHairColor}`;
-    document.getElementById("facialHairColorHex").textContent = facialHairPicker.value;
+    const earringsVal = getConfigVal(config, "earrings", "none");
+    const earringsProb = getConfigVal(config, "earringsProbability", 0);
+    document.getElementById("earrings").value = earringsProb === 0 ? "none" : earringsVal;
 
-    // 4. Giyim/Aksesuar
-    document.getElementById("clothing").value = getConfigVal(config, "clothing", "shirtCrewNeck");
-
-    const clothesColor = getConfigVal(config, "clothesColor", "65c9ff");
-    const clothesPicker = document.getElementById("clothesColor");
-    clothesPicker.value = clothesColor.startsWith("#") ? clothesColor : `#${clothesColor}`;
-    document.getElementById("clothesColorHex").textContent = clothesPicker.value;
-
-    const clothingGraphic = getConfigVal(config, "clothingGraphic", "none");
-    document.getElementById("clothingGraphic").value = clothingGraphic === null || clothingGraphic === undefined ? "none" : clothingGraphic;
-
-    const accVal = getConfigVal(config, "accessories", "none");
-    const accProb = getConfigVal(config, "accessoriesProbability", 0);
-    document.getElementById("accessories").value = accProb === 0 ? "none" : accVal;
-
-    const accColor = getConfigVal(config, "accessoriesColor", "ffffff");
-    const accColorPicker = document.getElementById("accessoriesColor");
-    accColorPicker.value = accColor.startsWith("#") ? accColor : `#${accColor}`;
-    document.getElementById("accessoriesColorHex").textContent = accColorPicker.value;
+    // Features checkboxes (mustache, blush, birthmark, freckles)
+    const featuresList = config.features || [];
+    document.getElementById("feat_mustache").checked = featuresList.includes("mustache");
+    document.getElementById("feat_blush").checked = featuresList.includes("blush");
+    document.getElementById("feat_birthmark").checked = featuresList.includes("birthmark");
+    document.getElementById("feat_freckles").checked = featuresList.includes("freckles");
 
     loadPreview();
   }
@@ -228,49 +210,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // 2. Saç
-    const topSelected = document.getElementById("top").value;
-    if (topSelected === "none") {
-      config.topProbability = 0;
+    const hairSelected = document.getElementById("hair").value;
+    if (hairSelected === "none") {
+      config.hairProbability = 0;
     } else {
-      config.top = [topSelected];
-      config.topProbability = 100;
+      config.hair = [hairSelected];
+      config.hairProbability = 100;
     }
     config.hairColor = [cleanHex(document.getElementById("hairColor").value)];
-    config.hatColor = [cleanHex(document.getElementById("hatColor").value)];
 
     // 3. Yüz
     config.eyes = [document.getElementById("eyes").value];
     config.eyebrows = [document.getElementById("eyebrows").value];
     config.mouth = [document.getElementById("mouth").value];
 
-    const facialHairSelected = document.getElementById("facialHair").value;
-    if (facialHairSelected === "none") {
-      config.facialHairProbability = 0;
+    // 4. Detaylar
+    const glassesSelected = document.getElementById("glasses").value;
+    if (glassesSelected === "none") {
+      config.glassesProbability = 0;
     } else {
-      config.facialHair = [facialHairSelected];
-      config.facialHairProbability = 100;
+      config.glasses = [glassesSelected];
+      config.glassesProbability = 100;
     }
-    config.facialHairColor = [cleanHex(document.getElementById("facialHairColor").value)];
 
-    // 4. Giyim
-    config.clothing = [document.getElementById("clothing").value];
-    config.clothesColor = [cleanHex(document.getElementById("clothesColor").value)];
+    const earringsSelected = document.getElementById("earrings").value;
+    if (earringsSelected === "none") {
+      config.earringsProbability = 0;
+    } else {
+      config.earrings = [earringsSelected];
+      config.earringsProbability = 100;
+    }
+
+    // Features
+    const featuresArray = [];
+    if (document.getElementById("feat_mustache").checked) featuresArray.push("mustache");
+    if (document.getElementById("feat_blush").checked) featuresArray.push("blush");
+    if (document.getElementById("feat_birthmark").checked) featuresArray.push("birthmark");
+    if (document.getElementById("feat_freckles").checked) featuresArray.push("freckles");
     
-    const graphicSelected = document.getElementById("clothingGraphic").value;
-    if (graphicSelected !== "none") {
-      config.clothingGraphic = [graphicSelected];
-    } else {
-      config.clothingGraphic = [];
-    }
-
-    const accSelected = document.getElementById("accessories").value;
-    if (accSelected === "none") {
-      config.accessoriesProbability = 0;
-    } else {
-      config.accessories = [accSelected];
-      config.accessoriesProbability = 100;
-    }
-    config.accessoriesColor = [cleanHex(document.getElementById("accessoriesColor").value)];
+    config.features = featuresArray;
+    config.featuresProbability = featuresArray.length > 0 ? 100 : 0;
 
     return config;
   }
@@ -299,47 +278,46 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (config.backgroundColor) params.set("backgroundColor", config.backgroundColor[0]);
       if (config.skinColor) params.set("skinColor", config.skinColor[0]);
       
-      // Top (Hair/Hat)
-      if (config.topProbability === 0) {
-        params.set("topProbability", "0");
+      // Hair
+      if (config.hairProbability === 0) {
+        params.set("hairProbability", "0");
       } else {
-        params.set("top", config.top[0]);
-        params.set("topProbability", "100");
+        params.set("hair", config.hair[0]);
+        params.set("hairProbability", "100");
       }
       params.set("hairColor", config.hairColor[0]);
-      params.set("hatColor", config.hatColor[0]);
 
       // Face
       params.set("eyes", config.eyes[0]);
       params.set("eyebrows", config.eyebrows[0]);
       params.set("mouth", config.mouth[0]);
 
-      // Facial Hair
-      if (config.facialHairProbability === 0) {
-        params.set("facialHairProbability", "0");
+      // Glasses & Earrings
+      if (config.glassesProbability === 0) {
+        params.set("glassesProbability", "0");
       } else {
-        params.set("facialHair", config.facialHair[0]);
-        params.set("facialHairProbability", "100");
+        params.set("glasses", config.glasses[0]);
+        params.set("glassesProbability", "100");
       }
-      params.set("facialHairColor", config.facialHairColor[0]);
 
-      // Clothing & Accessories
-      params.set("clothing", config.clothing[0]);
-      params.set("clothesColor", config.clothesColor[0]);
-      
-      if (config.clothingGraphic && config.clothingGraphic.length > 0) {
-        params.set("clothingGraphic", config.clothingGraphic[0]);
-      }
-      
-      if (config.accessoriesProbability === 0) {
-        params.set("accessoriesProbability", "0");
+      if (config.earringsProbability === 0) {
+        params.set("earringsProbability", "0");
       } else {
-        params.set("accessories", config.accessories[0]);
-        params.set("accessoriesProbability", "100");
+        params.set("earrings", config.earrings[0]);
+        params.set("earringsProbability", "100");
       }
-      params.set("accessoriesColor", config.accessoriesColor[0]);
 
-      const dicebearUrl = `https://api.dicebear.com/7.x/avataaars/svg?${params.toString()}`;
+      // Features
+      if (config.featuresProbability === 0) {
+        params.set("featuresProbability", "0");
+      } else {
+        params.set("featuresProbability", "100");
+        config.features.forEach(feat => {
+          params.append("features", feat);
+        });
+      }
+
+      const dicebearUrl = `https://api.dicebear.com/7.x/adventurer/svg?${params.toString()}`;
       
       const res = await fetch(dicebearUrl);
       if (!res.ok) throw new Error("Önizleme yüklenemedi");
@@ -373,24 +351,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     // Randomize dropdowns
-    randomOption("top");
+    randomOption("hair");
     randomOption("eyes");
     randomOption("eyebrows");
     randomOption("mouth");
-    randomOption("facialHair");
-    randomOption("clothing");
-    randomOption("clothingGraphic");
-    randomOption("accessories");
+    randomOption("glasses");
+    randomOption("earrings");
     randomOption("avatarStyle");
 
     // Randomize colors
     randomColor("bgColor");
     randomColor("skinColor");
     randomColor("hairColor");
-    randomColor("hatColor");
-    randomColor("facialHairColor");
-    randomColor("clothesColor");
-    randomColor("accessoriesColor");
+
+    // Randomize checkboxes
+    document.getElementById("feat_mustache").checked = Math.random() > 0.7;
+    document.getElementById("feat_blush").checked = Math.random() > 0.5;
+    document.getElementById("feat_birthmark").checked = Math.random() > 0.8;
+    document.getElementById("feat_freckles").checked = Math.random() > 0.6;
 
     // Randomize switches & text
     document.getElementById("flip").checked = Math.random() > 0.5;

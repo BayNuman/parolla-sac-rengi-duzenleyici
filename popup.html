@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Parolla Avatar Tasarımcısı 🎨</title>
+  <title>Parolla Adventurer Tasarımcısı 🎨</title>
   <style>
     :root {
       --bg-color: #0f172a;
@@ -34,7 +34,7 @@
     h1 {
       font-size: 18px;
       margin: 0;
-      background: linear-gradient(to right, #818cf8, #c084fc);
+      background: linear-gradient(to right, #38bdf8, #818cf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       font-weight: 700;
@@ -95,7 +95,7 @@
     }
     .tab-btn {
       flex: 1;
-      padding: 6px 4px;
+      padding: 6px 2px;
       background: none;
       border: none;
       color: var(--text-muted);
@@ -246,6 +246,28 @@
       transform: translateX(16px);
     }
 
+    /* Özellikler Grid */
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .checkbox-item input[type="checkbox"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent-color);
+    }
+    .checkbox-item label {
+      cursor: pointer;
+    }
+
     /* Butonlar */
     .actions {
       display: flex;
@@ -296,8 +318,8 @@
 <body>
 
   <header>
-    <h1>Parolla Avatar Editor 🎨</h1>
-    <p class="subtitle">DiceBear sınırlarını kaldırın ve avatarınızı özelleştirin</p>
+    <h1>Parolla Adventurer Tasarımcısı 🎨</h1>
+    <p class="subtitle">Adventurer stili ile sınırsız avatar özelleştirme</p>
   </header>
 
   <div id="errorMessage" class="error-msg"></div>
@@ -311,9 +333,9 @@
 
   <div class="tabs">
     <button class="tab-btn active" data-tab="tab-general">Genel</button>
-    <button class="tab-btn" data-tab="tab-hair">Saç/Şapka</button>
-    <button class="tab-btn" data-tab="tab-face">Yüz/Sakal</button>
-    <button class="tab-btn" data-tab="tab-style">Giyim/Aksesuar</button>
+    <button class="tab-btn" data-tab="tab-hair">Saç/Renk</button>
+    <button class="tab-btn" data-tab="tab-face">Yüz İfadeleri</button>
+    <button class="tab-btn" data-tab="tab-details">Detay/Gözlük</button>
   </div>
 
   <!-- GENEL SEKME -->
@@ -340,8 +362,8 @@
       <div class="control-row">
         <label for="skinColor">Cilt Rengi</label>
         <div class="color-input-wrapper">
-          <span class="color-hex" id="skinColorHex">#ffdbb4</span>
-          <input type="color" id="skinColor" value="#ffdbb4">
+          <span class="color-hex" id="skinColorHex">#f2d3b1</span>
+          <input type="color" id="skinColor" value="#f2d3b1">
         </div>
       </div>
     </div>
@@ -377,48 +399,62 @@
     </div>
   </div>
 
-  <!-- SAÇ/ŞAPKA SEKME -->
+  <!-- SAÇ SEKME -->
   <div id="tab-hair" class="tab-content">
     <div class="control-group">
       <div class="control-row">
-        <label for="top">Saç/Şapka Stili</label>
-        <select id="top">
-          <!-- Saç ve Şapka Enumu -->
+        <label for="hair">Saç Stili</label>
+        <select id="hair">
           <option value="none">Saçsız / Kel</option>
-          <option value="bob">Bob</option>
-          <option value="bun">Topuz (Bun)</option>
-          <option value="curly">Kıvırcık (Curly)</option>
-          <option value="curvy">Dalgalı (Curvy)</option>
-          <option value="dreads">Dreadlocks</option>
-          <option value="dreads01">Dreads 01</option>
-          <option value="dreads02">Dreads 02</option>
-          <option value="frida">Frida Örgüsü</option>
-          <option value="fro">Afro</option>
-          <option value="froBand">Bantlı Afro</option>
-          <option value="frizzle">Kabarık (Frizzle)</option>
-          <option value="longButNotTooLong">Orta Boy Saç</option>
-          <option value="miaWallace">Küt (Mia Wallace)</option>
-          <option value="shavedSides">Yanlar Kazınmış</option>
-          <option value="shaggy">Dağınık (Shaggy)</option>
-          <option value="shaggyMullet">Mullet</option>
-          <option value="shortCurly">Kısa Kıvırcık</option>
-          <option value="shortFlat">Kısa Düz</option>
-          <option value="shortRound">Kısa Yuvarlak</option>
-          <option value="shortWaved">Kısa Dalgalı</option>
-          <option value="sides">Sadece Yanlar</option>
-          <option value="straight01">Düz 01</option>
-          <option value="straight02">Düz 02</option>
-          <option value="straightAndStrand">Perçemli Düz</option>
-          <option value="theCaesar">Sezar Kesim</option>
-          <option value="theCaesarAndSidePart">Yandan Ayrılmış Sezar</option>
-          <option value="bigHair">Hacimli Saç</option>
-          <option value="hat">Beyzbol Şapkası</option>
-          <option value="hijab">Hicap (Başörtüsü)</option>
-          <option value="turban">Türban</option>
-          <option value="winterHat1">Bere 1</option>
-          <option value="winterHat02">Bere 2</option>
-          <option value="winterHat03">Bere 3</option>
-          <option value="winterHat04">Bere 4</option>
+          <optgroup label="Kısa Saçlar">
+            <option value="short01">Kısa 1</option>
+            <option value="short02">Kısa 2</option>
+            <option value="short03">Kısa 3</option>
+            <option value="short04">Kısa 4</option>
+            <option value="short05">Kısa 5</option>
+            <option value="short06">Kısa 6</option>
+            <option value="short07">Kısa 7</option>
+            <option value="short08">Kısa 8</option>
+            <option value="short09">Kısa 9</option>
+            <option value="short10">Kısa 10</option>
+            <option value="short11">Kısa 11</option>
+            <option value="short12">Kısa 12</option>
+            <option value="short13">Kısa 13</option>
+            <option value="short14">Kısa 14</option>
+            <option value="short15">Kısa 15</option>
+            <option value="short16">Kısa 16</option>
+            <option value="short17">Kısa 17</option>
+            <option value="short18">Kısa 18</option>
+            <option value="short19">Kısa 19</option>
+          </optgroup>
+          <optgroup label="Uzun Saçlar">
+            <option value="long01">Uzun 1</option>
+            <option value="long02">Uzun 2</option>
+            <option value="long03">Uzun 3</option>
+            <option value="long04">Uzun 4</option>
+            <option value="long05">Uzun 5</option>
+            <option value="long06">Uzun 6</option>
+            <option value="long07">Uzun 7</option>
+            <option value="long08">Uzun 8</option>
+            <option value="long09">Uzun 9</option>
+            <option value="long10">Uzun 10</option>
+            <option value="long11">Uzun 11</option>
+            <option value="long12">Uzun 12</option>
+            <option value="long13">Uzun 13</option>
+            <option value="long14">Uzun 14</option>
+            <option value="long15">Uzun 15</option>
+            <option value="long16">Uzun 16</option>
+            <option value="long17">Uzun 17</option>
+            <option value="long18">Uzun 18</option>
+            <option value="long19">Uzun 19</option>
+            <option value="long20">Uzun 20</option>
+            <option value="long21">Uzun 21</option>
+            <option value="long22">Uzun 22</option>
+            <option value="long23">Uzun 23</option>
+            <option value="long24">Uzun 24</option>
+            <option value="long25">Uzun 25</option>
+            <option value="long26">Uzun 26</option>
+          </optgroup>
         </select>
       </div>
     </div>
@@ -426,40 +462,45 @@
       <div class="control-row">
         <label for="hairColor">Saç Rengi</label>
         <div class="color-input-wrapper">
-          <span class="color-hex" id="hairColorHex">#4a312c</span>
-          <input type="color" id="hairColor" value="#4a312c">
-        </div>
-      </div>
-    </div>
-    <div class="control-group">
-      <div class="control-row">
-        <label for="hatColor">Şapka/Bere Rengi</label>
-        <div class="color-input-wrapper">
-          <span class="color-hex" id="hatColorHex">#262e33</span>
-          <input type="color" id="hatColor" value="#262e33">
+          <span class="color-hex" id="hairColorHex">#cb6820</span>
+          <input type="color" id="hairColor" value="#cb6820">
         </div>
       </div>
     </div>
   </div>
 
-  <!-- YÜZ/SAKAL SEKME -->
+  <!-- YÜZ İFADELERİ SEKME -->
   <div id="tab-face" class="tab-content">
     <div class="control-group">
       <div class="control-row">
         <label for="eyes">Göz Yapısı</label>
         <select id="eyes">
-          <option value="default">Varsayılan</option>
-          <option value="closed">Kapalı</option>
-          <option value="cry">Ağlayan</option>
-          <option value="eyeRoll">Göz Deviren</option>
-          <option value="happy">Mutlu</option>
-          <option value="hearts">Kalpli</option>
-          <option value="side">Yana Bakan</option>
-          <option value="squint">Kısık</option>
-          <option value="surprised">Şaşırmış</option>
-          <option value="wink">Göz Kırpan</option>
-          <option value="winkWacky">Çılgın Göz Kırpma</option>
-          <option value="xDizzy">Baygın / X_X</option>
+          <option value="variant01">Göz 1</option>
+          <option value="variant02">Göz 2</option>
+          <option value="variant03">Göz 3</option>
+          <option value="variant04">Göz 4</option>
+          <option value="variant05">Göz 5 (Mutlu/Gülümseyen)</option>
+          <option value="variant06">Göz 6</option>
+          <option value="variant07">Göz 7</option>
+          <option value="variant08">Göz 8</option>
+          <option value="variant09">Göz 9</option>
+          <option value="variant10">Göz 10</option>
+          <option value="variant11">Göz 11</option>
+          <option value="variant12">Göz 12</option>
+          <option value="variant13">Göz 13</option>
+          <option value="variant14">Göz 14</option>
+          <option value="variant15">Göz 15</option>
+          <option value="variant16">Göz 16</option>
+          <option value="variant17">Göz 17</option>
+          <option value="variant18">Göz 18</option>
+          <option value="variant19">Göz 19</option>
+          <option value="variant20">Göz 20</option>
+          <option value="variant21">Göz 21</option>
+          <option value="variant22">Göz 22</option>
+          <option value="variant23">Göz 23</option>
+          <option value="variant24">Göz 24</option>
+          <option value="variant25">Göz 25</option>
+          <option value="variant26">Göz 26</option>
         </select>
       </div>
     </div>
@@ -467,131 +508,110 @@
       <div class="control-row">
         <label for="eyebrows">Kaş Yapısı</label>
         <select id="eyebrows">
-          <option value="defaultNatural">Doğal Varsayılan</option>
-          <option value="default">İnce Varsayılan</option>
-          <option value="angryNatural">Öfkeli Doğal</option>
-          <option value="angry">Öfkeli İnce</option>
-          <option value="flatNatural">Düz Doğal</option>
-          <option value="frownNatural">Çatık Doğal</option>
-          <option value="raisedExcitedNatural">Heyecanlı Doğal</option>
-          <option value="raisedExcited">Heyecanlı İnce</option>
-          <option value="sadConcernedNatural">Üzgün Doğal</option>
-          <option value="sadConcerned">Üzgün İnce</option>
-          <option value="unibrowNatural">Tek Kaş</option>
-          <option value="upDownNatural">Biri Yukarıda Doğal</option>
-          <option value="upDown">Biri Yukarıda İnce</option>
+          <option value="variant01">Kaş 1</option>
+          <option value="variant02">Kaş 2</option>
+          <option value="variant03">Kaş 3</option>
+          <option value="variant04">Kaş 4</option>
+          <option value="variant05">Kaş 5</option>
+          <option value="variant06">Kaş 6</option>
+          <option value="variant07">Kaş 7</option>
+          <option value="variant08">Kaş 8</option>
+          <option value="variant09">Kaş 9</option>
+          <option value="variant10">Kaş 10</option>
+          <option value="variant11">Kaş 11</option>
+          <option value="variant12">Kaş 12</option>
+          <option value="variant13">Kaş 13</option>
+          <option value="variant14">Kaş 14</option>
+          <option value="variant15">Kaş 15</option>
         </select>
       </div>
     </div>
     <div class="control-group">
       <div class="control-row">
-        <label for="mouth">Ağız İfadesi</label>
+        <label for="mouth">Ağız Yapısı</label>
         <select id="mouth">
-          <option value="default">Varsayılan (Hafif Tebessüm)</option>
-          <option value="smile">Gülümseyen</option>
-          <option value="serious">Ciddi / Düz</option>
-          <option value="sad">Üzgün</option>
-          <option value="concerned">Endişeli</option>
-          <option value="disbelief">Şaşkın/İnanmayan</option>
-          <option value="eating">Yemek Yiyen</option>
-          <option value="grimace">Yüzünü Ekşiten</option>
-          <option value="screamOpen">Bağıran</option>
-          <option value="tongue">Dil Çıkaran</option>
-          <option value="twinkle">Işıltılı Gülüş</option>
-          <option value="vomit">Kusan</option>
+          <option value="variant01">Ağız 1 (Gülümseme)</option>
+          <option value="variant02">Ağız 2</option>
+          <option value="variant03">Ağız 3</option>
+          <option value="variant04">Ağız 4</option>
+          <option value="variant05">Ağız 5</option>
+          <option value="variant06">Ağız 6</option>
+          <option value="variant07">Ağız 7</option>
+          <option value="variant08">Ağız 8</option>
+          <option value="variant09">Ağız 9</option>
+          <option value="variant10">Ağız 10</option>
+          <option value="variant11">Ağız 11</option>
+          <option value="variant12">Ağız 12</option>
+          <option value="variant13">Ağız 13</option>
+          <option value="variant14">Ağız 14</option>
+          <option value="variant15">Ağız 15</option>
+          <option value="variant16">Ağız 16</option>
+          <option value="variant17">Ağız 17</option>
+          <option value="variant18">Ağız 18</option>
+          <option value="variant19">Ağız 19</option>
+          <option value="variant20">Ağız 20</option>
+          <option value="variant21">Ağız 21</option>
+          <option value="variant22">Ağız 22</option>
+          <option value="variant23">Ağız 23</option>
+          <option value="variant24">Ağız 24</option>
+          <option value="variant25">Ağız 25</option>
+          <option value="variant26">Ağız 26</option>
+          <option value="variant27">Ağız 27</option>
+          <option value="variant28">Ağız 28</option>
+          <option value="variant29">Ağız 29</option>
+          <option value="variant30">Ağız 30</option>
         </select>
-      </div>
-    </div>
-    <div class="control-group">
-      <div class="control-row">
-        <label for="facialHair">Sakal & Bıyık</label>
-        <select id="facialHair">
-          <option value="none">Sakal Yok</option>
-          <option value="beardLight">Hafif Kirli Sakal</option>
-          <option value="beardMedium">Normal Sakal</option>
-          <option value="beardMajestic">Gür Sakal</option>
-          <option value="moustacheFancy">Kıvrık Bıyık</option>
-          <option value="moustacheMagnum">Kalın Bıyık</option>
-        </select>
-      </div>
-    </div>
-    <div class="control-group">
-      <div class="control-row">
-        <label for="facialHairColor">Sakal Rengi</label>
-        <div class="color-input-wrapper">
-          <span class="color-hex" id="facialHairColorHex">#4a312c</span>
-          <input type="color" id="facialHairColor" value="#4a312c">
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- GİYİM/AKSESUAR SEKME -->
-  <div id="tab-style" class="tab-content">
+  <!-- DETAY / GÖZLÜK SEKME -->
+  <div id="tab-details" class="tab-content">
     <div class="control-group">
       <div class="control-row">
-        <label for="clothing">Giyim Stili</label>
-        <select id="clothing">
-          <option value="shirtCrewNeck">Bisiklet Yaka Tişört</option>
-          <option value="shirtScoopNeck">U Yaka Tişört</option>
-          <option value="shirtVNeck">V Yaka Tişört</option>
-          <option value="graphicShirt">Baskılı Tişört</option>
-          <option value="hoodie">Kapüşonlu (Hoodie)</option>
-          <option value="overall">Tulum (Overall)</option>
-          <option value="collarAndSweater">Gömlek & Kazak</option>
-          <option value="blazerAndShirt">Blazer Ceket & Gömlek</option>
-          <option value="blazerAndSweater">Blazer Ceket & Kazak</option>
+        <label for="glasses">Gözlük</label>
+        <select id="glasses">
+          <option value="none">Gözlük Yok</option>
+          <option value="variant01">Gözlük 1</option>
+          <option value="variant02">Gözlük 2</option>
+          <option value="variant03">Gözlük 3 (Güneş Gözlüğü)</option>
+          <option value="variant04">Gözlük 4</option>
+          <option value="variant05">Gözlük 5</option>
         </select>
       </div>
     </div>
     <div class="control-group">
       <div class="control-row">
-        <label for="clothesColor">Kıyafet Rengi</label>
-        <div class="color-input-wrapper">
-          <span class="color-hex" id="clothesColorHex">#65c9ff</span>
-          <input type="color" id="clothesColor" value="#65c9ff">
+        <label for="earrings">Küpeler</label>
+        <select id="earrings">
+          <option value="none">Küpe Yok</option>
+          <option value="variant01">Küpe 1</option>
+          <option value="variant02">Küpe 2</option>
+          <option value="variant03">Küpe 3</option>
+          <option value="variant04">Küpe 4</option>
+          <option value="variant05">Küpe 5</option>
+          <option value="variant06">Küpe 6</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <label>Karakter Özellikleri / Detaylar</label>
+      <div class="checkbox-grid">
+        <div class="checkbox-item">
+          <input type="checkbox" id="feat_mustache" value="mustache">
+          <label for="feat_mustache">Bıyık 👨🏻</label>
         </div>
-      </div>
-    </div>
-    <div class="control-group">
-      <div class="control-row">
-        <label for="clothingGraphic">Tişört Baskısı</label>
-        <select id="clothingGraphic">
-          <option value="none">Baskısız</option>
-          <option value="bat">Yarasa</option>
-          <option value="bear">Ayı</option>
-          <option value="cumbia">Cumbia</option>
-          <option value="deer">Geyik</option>
-          <option value="diamond">Elmas</option>
-          <option value="hola">Hola</option>
-          <option value="pizza">Pizza</option>
-          <option value="resist">Yumruk (Resist)</option>
-          <option value="skull">Kafatası</option>
-          <option value="skullOutline">Kafatası Çizgisel</option>
-        </select>
-      </div>
-    </div>
-    <div class="control-group">
-      <div class="control-row">
-        <label for="accessories">Aksesuar (Gözlük/Göz Bandı)</label>
-        <select id="accessories">
-          <option value="none">Aksesuar Yok</option>
-          <option value="prescription01">Gözlük 1</option>
-          <option value="prescription02">Gözlük 2</option>
-          <option value="round">Yuvarlak Gözlük</option>
-          <option value="sunglasses">Güneş Gözlüğü</option>
-          <option value="wayfarers">Wayfarer Gözlük</option>
-          <option value="eyepatch">Korsan Göz Bandı</option>
-          <option value="kurt">Kurt Gözlüğü</option>
-        </select>
-      </div>
-    </div>
-    <div class="control-group">
-      <div class="control-row">
-        <label for="accessoriesColor">Aksesuar Rengi</label>
-        <div class="color-input-wrapper">
-          <span class="color-hex" id="accessoriesColorHex">#ffffff</span>
-          <input type="color" id="accessoriesColor" value="#ffffff">
+        <div class="checkbox-item">
+          <input type="checkbox" id="feat_blush" value="blush">
+          <label for="feat_blush">Allık 😊</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="feat_birthmark" value="birthmark">
+          <label for="feat_birthmark">Ben / Leke 🩹</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="feat_freckles" value="freckles">
+          <label for="feat_freckles">Çil ✨</label>
         </div>
       </div>
     </div>
