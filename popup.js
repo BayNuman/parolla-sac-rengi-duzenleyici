@@ -566,7 +566,34 @@ document.addEventListener("DOMContentLoaded", async () => {
       userProfile = await res.json();
       
       if (userProfile && userProfile.diceBear) {
-        populateForm(userProfile.diceBear.config || {});
+        const serverConfig = userProfile.diceBear.config || {};
+        let finalConfig = { ...serverConfig };
+
+        // Try to load advanced settings from local storage
+        const localKey = `parolla_local_config_${userProfile.username}`;
+        try {
+          const storedLocal = JSON.parse(localStorage.getItem(localKey));
+          if (storedLocal) {
+            // Check if key properties match (to ensure they haven't changed the avatar elsewhere)
+            const serverSkin = getConfigVal(serverConfig, "skinColor", "f2d3b1");
+            const localSkin = getConfigVal(storedLocal, "skinColor", "f2d3b1");
+            const serverHair = getConfigVal(serverConfig, "hair", "none");
+            const localHair = getConfigVal(storedLocal, "hair", "none");
+            const serverHairColor = getConfigVal(serverConfig, "hairColor", "");
+            const localHairColor = getConfigVal(storedLocal, "hairColor", "");
+            const serverSeed = getConfigVal(serverConfig, "seed", "");
+            const localSeed = getConfigVal(storedLocal, "seed", "");
+
+            if (serverSkin === localSkin && serverHair === localHair && serverHairColor === localHairColor && serverSeed === localSeed) {
+              // Local config matches server profile, so we can restore advanced gradient details!
+              finalConfig = { ...storedLocal };
+            }
+          }
+        } catch (e) {
+          console.error("Local config load error:", e);
+        }
+
+        populateForm(finalConfig);
       } else {
         // Fallback default config if none exists
         loadPreview();
@@ -674,12 +701,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 4. Detay / Gözlük
     const glassesVal = getConfigVal(config, "glasses", "none");
-    const glassesProb = getConfigVal(config, "glassesProbability", 0);
-    document.getElementById("glasses").value = glassesProb === 0 ? "none" : glassesVal;
+    const glassesProb = getConfigVal(config, "glassesProbability", null);
+    if (glassesProb !== null) {
+      document.getElementById("glasses").value = glassesProb === 0 ? "none" : glassesVal;
+    } else {
+      document.getElementById("glasses").value = glassesVal;
+    }
 
     const earringsVal = getConfigVal(config, "earrings", "none");
-    const earringsProb = getConfigVal(config, "earringsProbability", 0);
-    document.getElementById("earrings").value = earringsProb === 0 ? "none" : earringsVal;
+    const earringsProb = getConfigVal(config, "earringsProbability", null);
+    if (earringsProb !== null) {
+      document.getElementById("earrings").value = earringsProb === 0 ? "none" : earringsVal;
+    } else {
+      document.getElementById("earrings").value = earringsVal;
+    }
 
     // Features checkboxes (mustache, blush, birthmark, freckles)
     const featuresList = config.features || [];
@@ -777,6 +812,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     config.featuresProbability = featuresArray.length > 0 ? 100 : 0;
 
     return config;
+  }
+
+  // Transform full local config into server-compatible strictly validated config
+  function buildServerConfig(localConfig) {
+    const serverConfig = {};
+
+    if (localConfig.seed) serverConfig.seed = localConfig.seed;
+    
+    // Background color: must be array
+    if (localConfig.backgroundColor) {
+      serverConfig.backgroundColor = localConfig.backgroundColor;
+    }
+    
+    // Skin color: must be array
+    if (localConfig.skinColor) {
+      serverConfig.skinColor = localConfig.skinColor;
+    }
+    
+    // Hair
+    if (localConfig.hair && localConfig.hair[0]) {
+      serverConfig.hair = localConfig.hair[0];
+    } else {
+      serverConfig.hair = "none";
+    }
+    
+    // Hair color: must be array
+    if (localConfig.hairColor) {
+      serverConfig.hairColor = localConfig.hairColor;
+    }
+
+    // Component variants: must be string, not array
+    serverConfig.eyes = (localConfig.eyes && localConfig.eyes[0]) ? localConfig.eyes[0] : "variant01";
+    serverConfig.eyebrows = (localConfig.eyebrows && localConfig.eyebrows[0]) ? localConfig.eyebrows[0] : "variant01";
+    serverConfig.mouth = (localConfig.mouth && localConfig.mouth[0]) ? localConfig.mouth[0] : "variant01";
+    serverConfig.glasses = (localConfig.glasses && localConfig.glasses[0]) ? localConfig.glasses[0] : "none";
+    serverConfig.earrings = (localConfig.earrings && localConfig.earrings[0]) ? localConfig.earrings[0] : "none";
+
+    // features: must be string (comma-separated list, e.g. "mustache,blush")
+    serverConfig.features = (localConfig.features && localConfig.features.length > 0) ? localConfig.features.join(",") : "";
+
+    return serverConfig;
   }
 
   // Client-side SVG editing to apply the linear/radial gradient to hair elements
@@ -1067,6 +1143,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       applyBtn.textContent = "Kaydediliyor...";
       
       const config = collectConfig();
+      
+      // Save full config locally to restore advanced settings next time
+      const localKey = `parolla_local_config_${userProfile.username}`;
+      localStorage.setItem(localKey, JSON.stringify(config));
+
+      // Build server-compatible config
+      const serverConfig = buildServerConfig(config);
+
       // URL-encode the SVG to build the data URL scheme (Parolla's format)
       const dataImage = "data:image/svg+xml;utf8," + encodeURIComponent(currentSvgText);
 
@@ -1076,7 +1160,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         bio: userProfile.bio || "",
         diceBear: {
           dataImage: dataImage,
-          config: config
+          config: serverConfig
         },
         avatarSource: "diceBear"
       };
